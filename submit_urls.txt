@@ -1,3 +1,6 @@
+https://github.com/IT-PXS/blog.git/2025/01/20/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Map%EF%BC%881-HashMap%EF%BC%89/
+https://github.com/IT-PXS/blog.git/2025/01/23/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Map%EF%BC%882-Hashtable%EF%BC%89/
+https://github.com/IT-PXS/blog.git/2024/12/09/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/List%EF%BC%881-ArrayList%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2025/01/21/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/
 https://github.com/IT-PXS/blog.git/2025/01/22/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8/
 https://github.com/IT-PXS/blog.git/2025/01/01/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Optional/
@@ -5,6 +8,3 @@ https://github.com/IT-PXS/blog.git/2024/10/20/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E
 https://github.com/IT-PXS/blog.git/2024/12/31/Java/SpringSecurity/SpringSecurity5/SpringSecurity5%EF%BC%883-%E5%AF%86%E7%A0%81%E8%A7%A3%E6%9E%90%E5%99%A8%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/12/30/Java/SpringSecurity/SpringSecurity5/SpringSecurity5%EF%BC%882-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%EF%BC%89/
 https://github.com/IT-PXS/blog.git/2024/12/29/Java/SpringSecurity/SpringSecurity5/SpringSecurity5%EF%BC%881-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%EF%BC%89/
-https://github.com/IT-PXS/blog.git/2024/12/29/Java/Spring/SPI%E6%9C%BA%E5%88%B6/
-https://github.com/IT-PXS/blog.git/2024/11/22/Java/%E5%BC%82%E6%AD%A5%E5%A4%9A%E7%BA%BF%E7%A8%8B/SpringBoot%20Async%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8/
-https://github.com/IT-PXS/blog.git/2024/12/18/%E5%BF%83%E5%BE%97/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80%EF%BC%882-equals%E4%B8%8E%E8%BF%90%E7%AE%97%E7%AC%A6==%EF%BC%89/
