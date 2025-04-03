@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>爱编程的小生 | 爱编程的小生</title><meta name="author" content="爱编程的小生"><meta name="copyright" content="爱编程的小生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="theme-color" content="#ffffff"><meta name="msvalidate.01" content="42D39FDCDA422F751C046EF1D3E47A32"><meta name="description" content="核心组件  分布式消息事务 半消息：是指暂时还不能被 Consumer 消费的消息，Producer 成功发送到 Broker 端的消息，但是此消息被标记为 “暂不可投递” 状态，只有等 Producer 端执行完本地事务后经过二次确认了之后，Consumer 才能消费此条消息。 依赖半消息，可以实现分布式消息事务，其中的关键在于二次确认以及消息回查：   Producer 向 broker 发送">
+<meta property="og:type" content="article">
+<meta property="og:title" content="爱编程的小生">
+<meta property="og:url" content="https://github.com/IT-PXS/blog.git/2025/03/27/%E5%BF%83%E5%BE%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/index.html">
+<meta property="og:site_name" content="爱编程的小生">
+<meta property="og:description" content="核心组件  分布式消息事务 半消息：是指暂时还不能被 Consumer 消费的消息，Producer 成功发送到 Broker 端的消息，但是此消息被标记为 “暂不可投递” 状态，只有等 Producer 端执行完本地事务后经过二次确认了之后，Consumer 才能消费此条消息。 依赖半消息，可以实现分布式消息事务，其中的关键在于二次确认以及消息回查：   Producer 向 broker 发送">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/IT-PXS/blog.git/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-03-27T14:59:20.262Z">
+<meta property="article:modified_time" content="2025-03-30T14:33:45.884Z">
+<meta property="article:author" content="爱编程的小生">
+<meta property="article:tag" content="前端,后端,运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/IT-PXS/blog.git/img/butterfly-icon.png"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="https://github.com/IT-PXS/blog.git/2025/03/27/%E5%BF%83%E5%BE%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7c3d43fea2824135a47becbdad0a5150";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: 爱编程的小生","link":"链接: ","source":"来源: 爱编程的小生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '爱编程的小生',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-03-30 22:33:45'
+}</script><link rel="stylesheet" href="/blog/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/blog/img/butterfly-icon.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">93</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/blog/"><span class="site-name">爱编程的小生</span></a><a class="nav-page-title" href="/blog/"><span class="site-name">爱编程的小生</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">无标题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-27T14:59:20.262Z" title="发表于 2025-03-27 22:59:20">2025-03-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-30T14:33:45.884Z" title="更新于 2025-03-30 22:33:45">2025-03-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">5.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>17分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/blog/2025/03/27/%E5%BF%83%E5%BE%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h2 id="核心组件">核心组件</h2>
+<p><img src="D:%5Cblog%5Chexo%5Csource_posts%5C%E5%BF%83%E5%BE%97%5C%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%5CRocketMQ%5C13.png" alt=""></p>
+<h2 id="分布式消息事务">分布式消息事务</h2>
+<p>半消息：是指暂时还不能被 Consumer 消费的消息，Producer 成功发送到 Broker 端的消息，但是此消息被标记为 “暂不可投递” 状态，只有等 Producer 端执行完本地事务后经过二次确认了之后，Consumer 才能消费此条消息。</p>
+<p>依赖半消息，可以实现分布式消息事务，其中的关键在于二次确认以及消息回查：</p>
+<p><img src="D:%5Cblog%5Chexo%5Csource_posts%5C%E5%BF%83%E5%BE%97%5C%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%5CRocketMQ%5C14.png" alt=""></p>
+<ol>
+<li>Producer 向 broker 发送半消息</li>
+<li>Producer 端收到响应，消息发送成功，此时消息是半消息，标记为 “不可投递” 状态，Consumer 消费不了。</li>
+<li>Producer 端执行本地事务。</li>
+<li>正常情况本地事务执行完成，Producer 向 Broker 发送 Commit/Rollback，如果是 Commit，Broker 端将半消息标记为正常消息，Consumer 可以消费，如果是 Rollback，Broker 丢弃此消息。</li>
+<li>异常情况，Broker 端迟迟等不到二次确认。在一定时间后，会查询所有的半消息，然后到 Producer 端查询半消息的执行情况。</li>
+<li>Producer 端查询本地事务的状态</li>
+<li>根据事务的状态提交 commit/rollback 到 broker 端。（5，6，7 是消息回查）</li>
+<li>消费者段消费到消息之后，执行本地事务。</li>
+</ol>
+<h2 id="为什么-RocketMQ-不使用-Zookeeper-作为注册中心呢？">为什么 RocketMQ 不使用 Zookeeper 作为注册中心呢？</h2>
+<p>Kafka 我们都知道采用 Zookeeper 作为注册中心——当然也开始逐渐去 Zookeeper，RocketMQ 不使用 Zookeeper 其实主要可能从这几方面来考虑：</p>
+<ol>
+<li>基于可用性的考虑，根据 CAP 理论，同时最多只能满足两个点，而 Zookeeper 满足的是 CP，也就是说 Zookeeper 并不能保证服务的可用性，Zookeeper 在进行选举的时候，整个选举的时间太长，期间整个集群都处于不可用的状态，而这对于一个注册中心来说肯定是不能接受的，作为服务发现来说就应该是为可用性而设计。</li>
+<li>基于性能的考虑，NameServer 本身的实现非常轻量，而且可以通过增加机器的方式水平扩展，增加集群的抗压能力，而 Zookeeper 的写是不可扩展的，Zookeeper 要解决这个问题只能通过划分领域，划分多个 Zookeeper 集群来解决，首先操作起来太复杂，其次这样还是又违反了 CAP 中的 A 的设计，导致服务之间是不连通的。</li>
+<li>持久化的机制来带的问题，ZooKeeper 的 ZAB 协议对每一个写请求，会在每个 ZooKeeper 节点上保持写一个事务日志，同时再加上定期的将内存数据镜像（Snapshot）到磁盘来保证数据的一致性和持久性，而对于一个简单的服务发现的场景来说，这其实没有太大的必要，这个实现方案太重了。而且本身存储的数据应该是高度定制化的。</li>
+<li>消息发送应该弱依赖注册中心，而 RocketMQ 的设计理念也正是基于此，生产者在第一次发送消息的时候从 NameServer 获取到 Broker 地址后缓存到本地，如果 NameServer 整个集群不可用，短时间内对于生产者和消费者并不会产生太大影响。</li>
+</ol>
+<h2 id="Broker-角度分析，如何确保消息持久化">Broker 角度分析，如何确保消息持久化?</h2>
+<ol>
+<li>CommitLog 存储机制：Broker 将所有主题的消息都存储在 CommitLog 中。当 Producer 发送消息至 Broker 时，Broker 会使用同步或异步的方式对消息进行刷盘持久化，将其保存至 CommitLog。CommitLog 文件存储目录为${ROCKET_HOME}/store/commitlog，每个文件默认大小为 1G。当文件写满后，会创建新的文件，并以该文件中第一个偏移量为文件名。这种设计确保了消息能够按照发送顺序被存储，为后续的顺序消费提供了基础。</li>
+<li>顺序写入与多种刷盘策略：Broker 接收到消息后，会顺序写入 CommitLog 文件。这种顺序写入的方式避免了磁盘的随机访问，提高了写入性能。同时，Broker 提供了同步刷盘和异步刷盘两种策略。同步刷盘可以确保消息成功地存储到磁盘中，而异步刷盘则会在后台异步进行，提高了系统的吞吐量。</li>
+<li>多副本与集群同步：RocketMQ 支持多个 Broker 组成集群，同时支持多 Master 多 Slave 的同步双写以及 Master 多 Slave 的异步复制模式。这种设计确保了即使单个 Broker 出现故障，其他 Broker 也能继续处理消息，保证了消息的持久化和可靠性。</li>
+<li>消费队列与索引：除了 CommitLog，RocketMQ 还设计了 ConsumeQueue 作为索引文件。它能够根据 topic 检索消息，提高了消费者拉取消息的效率。</li>
+</ol>
+<h2 id="什么是-PageCache">什么是 PageCache ?</h2>
+<p>PageCache 为页高速缓冲存储器（简称页高缓），在 Linux 系统中，PageCache 用于缓存文件的逻辑内容，其大小为一页，通常为 4K。当从外存的一页映射到内存的一页时，PageCache 与 Buffer Cache、Swap Cache 共同实现了高速缓存功能。这种缓存机制可以减少对磁盘的频繁读写，提高访问速度，从而提升系统性能。</p>
+<p>具体来说，PageCache 技术可以将数据从磁盘读取到内核缓冲区（即磁盘高速缓存）中，使得用户进程可以直接访问内核缓冲区中的数据，从而避免了一次数据拷贝的开销。然而，需要注意的是，在传输大文件时，PageCache 可能会占用大量内存，影响性能。因此，在处理大文件时，可能需要采取一些技术手段（如 mmap）来避免 PageCache 的占用，以提高性能。</p>
+<p>总的来说，PageCache 是一种非常有用的技术，通过利用系统内存进行缓存，可以减少数据在内核缓存中的多次拷贝，减少了内存开销，提供了更加可控的数据一致性，从而提高了数据访问的效率。</p>
+<h2 id="什么是-Mmap">什么是 Mmap ?</h2>
+<p>Mmap，即 Memory Map，是一种内存映射文件的方法。它可以将一个文件或其他对象映射到进程的地址空间，实现文件磁盘地址和进程虚拟地址空间中一段虚拟地址的一一对映关系。当应用程序需要访问文件时，它会将文件映射到内存，并将文件的内容复制到内存中，从而实现对文件的直接访问。这种映射关系建立后，进程可以通过指针的方式对映射区域进行读写操作，系统会自动回写脏页面到对应的文件磁盘上，从而完成对文件的操作，无需再调用 read、write 等系统调用函数。</p>
+<p>Mmap 具有多个优点。首先，它提供了快速的访问速度，因为对映射区域的读写操作就是对文件的读写操作，避免了传统 IO 操作中的数据复制过程。其次，Mmap 可以节约内存空间，因为它通过映射的方式实现文件访问，不需要额外的内存缓冲区。此外，Mmap 还支持多种类型文件的访问，并且具有支持多进程访问和文件共享的特性，不同进程对映射区域的修改会相互反映，从而实现进程间的文件共享。</p>
+<p>在处理大文件时，Mmap 特别有用。传统的文件 I/O 操作可能会变得很慢，而 Mmap 能够避免频繁的文件 I/O 操作，减少内存的使用，并且支持随机访问。它使我们可以像访问内存一样访问文件，从而提高文件访问的效率。</p>
+<h2 id="传统缓存-IO-和-Mmap-的区别">传统缓存 IO 和 Mmap 的区别</h2>
+<p>从内存管理方式来看，传统缓存 IO 模式下，数据首先存储在内核缓冲区，然后再从内核缓冲区复制到用户程序缓存，这涉及到两次数据复制过程。而 Mmap 则通过虚拟内存技术，将文件直接映射到内存中，用户程序可以直接对内存进行读写操作，避免了额外的数据复制。</p>
+<p>从数据访问方式来看，传统缓存 IO 模式下，程序需要使用 read/write 系统调用，定位到文件的 inode 然后定位到磁盘地址，才能进行读写操作。而 Mmap 模式下，对内存的读写操作就是对文件的读写操作，因为文件已经被映射到了进程的地址空间，程序可以通过指针直接对映射区域进行读写，操作方式更加直接和高效。</p>
+<p>此外，Mmap 还提供了一种文件共享的机制。当多个进程映射了同一块内存时，一个进程对映射区域的写操作对其他进程立即可见，这在不同进程需要共享数据时非常有用。</p>
+<p>综上所述，传统缓存 IO 和 Mmap 在内存管理和数据访问方式上存在明显的差异。Mmap 通过减少数据复制和提供更直接的数据访问方式，提高了程序的性能，并且支持进程间的文件共享。而传统缓存 IO 虽然简单直接，但在处理大量数据时可能会受到性能上的限制。</p>
+<h2 id="消息刷盘怎么实现的呢？">消息刷盘怎么实现的呢？</h2>
+<p>RocketMQ 提供了两种刷盘策略：同步刷盘和异步刷盘</p>
+<ol>
+<li>同步刷盘：在消息达到 Broker 的内存之后，必须刷到 commitLog 日志文件中才算成功，然后返回 Producer 数据已经发送成功。</li>
+<li>异步刷盘：异步刷盘是指消息达到 Broker 内存后就返回 Producer 数据已经发送成功，会唤醒一个线程去将数据持久化到 CommitLog 日志文件中。</li>
+</ol>
+<p>Broker 在消息的存取时直接操作的是内存（内存映射文件），这可以提供系统的吞吐量，但是无法避免机器掉电时数据丢失，所以需要持久化到磁盘中。</p>
+<p>刷盘的最终实现都是使用 NIO 中的 MappedByteBuffer.force() 将映射区的数据写入到磁盘，如果是同步刷盘的话，在 Broker 把消息写到 CommitLog 映射区后，就会等待写入完成。</p>
+<p>异步而言，只是唤醒对应的线程，不保证执行的时机，流程如图所示。</p>
+<p><img src="D:%5Cblog%5Chexo%5Csource_posts%5C%E5%BF%83%E5%BE%97%5C%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%5CRocketMQ%5C15.png" alt=""></p>
+<h2 id="RocketMQ-Broker-的刷盘机制">RocketMQ Broker 的刷盘机制</h2>
+<p>RocketMQ Broker 的刷盘机制是确保消息可靠性的关键，其作用是确保消息能够持久化存储，以防止在 Broker 宕机或故障时消息丢失。刷盘机制主要涉及到消息从内存写入磁盘的过程，RocketMQ 提供了两种刷盘方式：同步刷盘和异步刷盘。</p>
+<p>同步刷盘机制的工作流程：当消息从 Producer 端发送出去后，Broker 接收到消息并将其写入内存的 PageCache 中，然后，Broker 会立即通知刷盘线程进行刷盘操作，即将内存中的数据写入磁盘。当前线程会等待刷盘线程的通知，直到刷盘操作完成并返回写成功状态后，Producer 才会收到消息发送成功的 ACK。这种机制能够确保消息在写入磁盘后才被认为是成功的，从而提高了消息的可靠性。</p>
+<p>异步刷盘机制的工作流程：当 Broker 接收到消息后，它同样会将消息写入内存的 PageCache 中，但随后会立即返回写成功状态给 Producer，而不需要等待刷盘操作完成。然后，另一个异步线程会负责将 PageCache 中的数据写入磁盘，以确保消息的持久化。这种机制提高了消息的吞吐量和性能，适用于需要高吞吐量的场景。然而，它也存在一定的数据丢失风险，因为在刷盘操作完成之前，如果 Broker 发生故障，那么尚未写入磁盘的消息可能会丢失。</p>
+<p>此外，RocketMQ 还提供了配置选项来设置刷盘方式。在 broker.conf 配置文件中，可以通过设置 flushDiskType 参数来选择同步刷盘（SYNC_FLUSH）或异步刷盘（ASYNC_FLUSH）。默认情况下，RocketMQ 使用异步刷盘方式。</p>
+<p>除了刷盘方式的选择外，RocketMQ 还采用了一些优化策略来提高刷盘性能。例如，通过内存映射文件，RocketMQ 可以像操作数组一样读写文件，提高了写入性能。同时，当使用异步刷盘且启用了堆外内存池时，RocketMQ 会先将消息写入 writeBuffer，然后通过 commit 操作将其提交到 FileChannel，最后再通过 flush 操作将其刷新到磁盘，这种方式能够进一步提高性能。</p>
+<h2 id="RocketMQ-队列-Queue-分配算法">RocketMQ 队列 Queue 分配算法</h2>
+<p>RocketMQ 的队列分配算法是确保消息能够高效、均衡地被消费者消费的关键机制。其核心目标是将队列（Queue）合理地分配给消费者（Consumer），以实现消息的负载均衡和高效处理。以下是 RocketMQ 队列分配算法的详细解释：</p>
+<ol>
+<li>平均分配策略：</li>
+</ol>
+<p>根据 avg = QueueCount/ConsumerCount 的计算结果进行分配，如果能够整除，则按照计算出的平均值将队列逐个分配给消费者；如果不能整除，则将多余的队列按照消费者的顺序逐个分配。这种方法简单直观，但在消费者数量变化时可能导致负载不均衡。</p>
+<ol start="2">
+<li>环形平均策略：</li>
+</ol>
+<p>该策略根据消费者的顺序，在由队列组成的环形图中逐个分配，不需要提前计算，每次分配时只需按照环形顺序进行，保证了负载均衡。当消费者数量变化时，可以动态地调整队列分配。</p>
+<ol start="3">
+<li>一致性 Hash 策略：</li>
+</ol>
+<p>该策略基于 Hash 算法，将队列和消费者都进行 Hash 处理，然后根据 Hash 值将队列分配给相应的消费者。这种方法保证了相同的消费者总是被分配到相同的队列，有利于在消费者组扩容或缩容时保持稳定的消费状态。但分配效率可能较低，且在某些情况下可能导致分配不均。</p>
+<ol start="4">
+<li>同机房策略：</li>
+</ol>
+<p>根据队列的部署机房位置和消费者的位置，将同一个机房的队列分配给同一个消费者，这种策略可以减少跨机房的数据传输延迟，提高消息处理的效率。通常与其他策略结合使用，例如在同一个机房内采用平均分配或环形平均策略。</p>
+<h2 id="RocketMQ-是如何保证数据的高容错性的">RocketMQ 是如何保证数据的高容错性的?</h2>
+<p>RocketMQ 通过多种机制共同作用来保证数据的高容错性。这些机制主要包括消息持久化、主从复制、故障恢复以及消息存储机制等。</p>
+<ol>
+<li>RocketMQ 使用消息持久化来确保消息的可靠性。当消息发送到 RocketMQ 服务端后，会将消息持久化到磁盘上，并通过刷盘机制保证数据不丢失。RocketMQ 提供了同步刷盘和异步刷盘两种方式。同步刷盘可以保证消息不丢失，但会降低消息的吞吐量；而异步刷盘可以提高消息的吞吐量，但会有一定概率丢失部分消息。用户可以根据自己的需求选择合适的刷盘方式。</li>
+<li>RocketMQ 采用主从复制的方式来提高系统的可用性。当主节点出现故障时，从节点会接替主节点的工作，确保消息的正常处理。主从节点之间通过心跳机制保持通信，一旦主节点失去响应，从节点会立即接管主节点的工作，保证消息的高可用性。</li>
+<li>RocketMQ 还具备故障恢复的能力。当系统出现故障或数据丢失时，RocketMQ 可以通过文件恢复机制来快速恢复数据。它使用 CommitLog 来存储消息数据，并通过 ConsumeQueue 和 IndexFile 进行数据的索引和快速定位。如果 CommitLog 中的消息数据丢失或损坏，RocketMQ 会尝试从 ConsumeQueue 和 IndexFile 中重新构建数据。同时，RocketMQ 还会定期将消费者消费的进度保存到磁盘中，以确保在意外情况下消费者能够重新消费消息而不会重复消费。</li>
+<li>RocketMQ 的消息存储机制也为其高容错性提供了保障。它采用了一种三文件结构的方式，包括消息队列文件、消息索引文件和消息文件。这种结构使得消息存储既高效又可靠，通过顺序写入、随机读取以及 Hash 索引等方式，确保了高效的写入速度和随机读取速度。同时，RocketMQ 还支持对消息的预写日志进行压缩、刷盘策略的配置等一系列优化措施，进一步提升了消息存储的效率和可靠性。</li>
+</ol>
+<h2 id="RocketMQ-如何保证高可用性-？">RocketMQ 如何保证高可用性 ？</h2>
+<ol>
+<li>数据复制与主从机制：RocketMQ 采用主从复制的方式，将消息存储在多个 Broker 节点上，每个 Broker 节点都有一个主节点和多个从节点。当消息发送到主节点时，主节点会将消息复制到所有的从节点上，确保消息的可靠传递。这种机制避免了单点故障，提高了系统的容错能力。</li>
+<li>故障切换：当某个 Broker 节点宕机时，RocketMQ 能够自动切换到备份节点，确保系统的高可用性。从节点会自动接替主节点的工作，继续处理消息，从而保证了消息的可靠传递。</li>
+<li>动态扩容：当系统的负载过高时，RocketMQ 能够自动增加节点，以保证系统的高可用性。这种动态扩容的能力使得 RocketMQ 能够应对突发的流量增长，保持系统的稳定运行。</li>
+<li>消息生产与消费的高可用性：在创建 Topic 时，RocketMQ 会将 Topic 的多个 Message Queue 创建在多个 Broker 组上，这样当一个 Broker 组的 Master 不可用后，Producer 仍然可以给其他组的 Master 发送消息，从而保证了消息生产的高可用性。同时，Consumer 在配置时并不需要指定从哪个节点读取消息，当 Master 不可用或者繁忙时，Consumer 会被自动切换到从 Slave 读，实现了消息消费的高可用性。</li>
+<li>Name Server 与 Broker 的负载均衡：Name Server 负责提供 Broker 的路由信息，让 Producer 和 Consumer 可以找到对应的 Broker 进行消息的发送和消费。通过合理的负载均衡策略，Name Server 可以确保 Producer 和 Consumer 能够均匀地访问各个 Broker 节点，避免了某些节点过载而其他节点空闲的情况，提高了系统的整体性能和可用性。</li>
+</ol>
+<h2 id="RocketMQ-的生产者，如何进行流控-？">RocketMQ 的生产者，如何进行流控 ？</h2>
+<p>RocketMQ 的生产者流控主要涉及到在发送消息过程中对发送频率、资源占用以及等待时间的控制，以避免对系统造成过大的压力。以下是 RocketMQ 生产者进行流控的主要方式：</p>
+<ol>
+<li>
+<p>基于 commitLog 文件被锁时间的流控：当 commitLog 文件被锁定超过设定的时间（默认为 1000ms，即 1 秒）时，RocketMQ 会触发流控。这是为了避免在写入消息到 commitLog 文件时发生阻塞，导致系统性能下降。</p>
+</li>
+<li>
+<p>基于 transientStorePool 中资源不足的流控：当开启 transientStorePool（瞬态存储池）并且 broker 为异步刷盘的主机时，如果 transientStorePool 中的资源不足，RocketMQ 会拒绝当前的 send 请求，从而触发流控。这是为了确保在资源紧张的情况下，系统能够保持稳定运行。</p>
+</li>
+<li>
+<p>基于 send 请求队列等待时间的流控：RocketMQ 的 broker 会每隔 10ms 检查 send 请求队列头部请求的等待时间。如果等待时间超过设定的阈值（默认为 200ms），broker 会拒绝当前的 send 请求，从而触发流控。这种流控方式有助于防止因为请求堆积而导致的系统性能下降。</p>
+</li>
+</ol>
+<p>此外，生产者端还可以通过设置 DefaultMQProducer 的 sendMsgTimeout 方法来设置消息发送的超时时间。当消息发送时间超过这个设定值时，会抛出异常。同时，生产者也可以设置最大并发数，以控制同时发送的消息数量，避免对系统造成过大的压力。</p>
+<p>在生产者进行流控时，如果触发流控条件，生产者客户端会按照设置的重试次数进行重试发送消息。同步发送时，调用线程会一直阻塞直到某次重试成功或达到最大重试次数后失败并抛出错误码和异常；异步发送时，调用线程不会阻塞，但调用结果会通过异常事件或成功事件返回。</p>
+<h2 id="什么是消费者流空-？">什么是消费者流空 ？</h2>
+<p>消费者流空（Consumer Flow Empty）是指消费者在消费消息时，队列中没有可消费的消息，从而出现的流空现象。在 RocketMQ 这样的消息队列服务中，当一个消费者从队列中尝试消费消息时，如果队列为空，该消费者会进入等待状态，直到有新的消息进入队列。如果等待时间过长，消费者可能会进入死循环，不断地轮询队列，从而浪费系统资源。</p>
+<p>为了避免消费者流空现象的发生，系统设计和运维人员需要确保消息队列中有足够的消息供消费者消费，或者在消费者端实现相应的等待和重试机制。同时，也需要对系统的性能和容量进行合理规划，以应对可能出现的消息高峰和消费者流量变化。</p>
+<h2 id="什么是-broker-回溯消费-？">什么是 broker 回溯消费 ？</h2>
+<p>它指的是消费者已经消费成功的消息，由于业务上需求需要重新消费的情况。RocketMQ 支持按照时间回溯消费，时间维度可以精确到毫秒，既可以向前回溯，也可以向后回溯。回溯消费的实现需要 Broker 在向 Consumer 投递成功消息后，仍然保留这些消息，以便在需要时重新投递给 Consumer 进行消费。</p>
+<p>在 RocketMQ 的架构中，Broker 负责存储消息，Producer 负责生产消息，而 Consumer 负责消费消息。当业务上需要回溯消费时，Broker 会根据消费者的请求，重新将指定时间段内的消息投递给消费者进行消费。</p>
+<p>回溯消费的实现通常需要在生产、消费时设置指定的参数，并开启消息轨迹相关的配置。通过这种方式，可以确保在需要回溯消费时，能够准确地找到并重新消费指定时间段内的消息，满足业务上的需求。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://IT-PXS.github.io/blog">爱编程的小生</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://github.com/IT-PXS/blog.git/2025/03/27/%E5%BF%83%E5%BE%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/">https://github.com/IT-PXS/blog.git/2025/03/27/心得/消息队列/RocketMQ/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://github.com/IT-PXS/blog.git" target="_blank">爱编程的小生</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/blog/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/blog/2025/03/27/%E5%BF%83%E5%BE%97/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2"></div></div><div class="info-2"><div class="info-item-1">核心组件  Broker：接受和分发消息的应用，RabbitMQ Server 就是 Message Broker virtual host：出于多租户和安全因素设计的，把 AMQP 的基本组件划分到一个虚拟的分组中，类似于网络中的 namespace 概念，当多个不同的用户使用同一个 RabbitMQ server 提供的服务时，可以划分出多个 vhost 创建...</div></div></div></a><a class="pagination-related" href="/blog/2025/03/31/%E5%BF%83%E5%BE%97/SSM/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2"></div></div><div class="info-2"><div class="info-item-1">什么是微服务？ 微服务（Microservices）是一种软件架构风格，将一个大型应用程序划分为一组小型、自治且松耦合的服务。每个微服务负责执行特定的业务功能，并通过轻量级通信机制（如 HTTP）相互协作。每个微服务可以独立开发、部署和扩展，使得应用程序更加灵活、可伸缩和可维护。 在微服务的架构演进中，一般可能会存在这样的演进方向：单体式–&gt; 服务化–&gt;...</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">爱编程的小生</div><div class="author-info-description">一个IT爱好者</div><div class="site-data"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">93</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" href="https://github.com/IT-PXS"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/IT-PXS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3032428600@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">作者很懒，有时间就更新，微信公众号：爱编程的小生，邮箱：3032428600@qq.com</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">核心组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%B6%88%E6%81%AF%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.</span> <span class="toc-text">分布式消息事务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-RocketMQ-%E4%B8%8D%E4%BD%BF%E7%94%A8-Zookeeper-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%91%A2%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">为什么 RocketMQ 不使用 Zookeeper 作为注册中心呢？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Broker-%E8%A7%92%E5%BA%A6%E5%88%86%E6%9E%90%EF%BC%8C%E5%A6%82%E4%BD%95%E7%A1%AE%E4%BF%9D%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-number">4.</span> <span class="toc-text">Broker 角度分析，如何确保消息持久化?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-PageCache"><span class="toc-number">5.</span> <span class="toc-text">什么是 PageCache ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Mmap"><span class="toc-number">6.</span> <span class="toc-text">什么是 Mmap ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E7%BC%93%E5%AD%98-IO-%E5%92%8C-Mmap-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">7.</span> <span class="toc-text">传统缓存 IO 和 Mmap 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E5%88%B7%E7%9B%98%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="toc-number">8.</span> <span class="toc-text">消息刷盘怎么实现的呢？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ-Broker-%E7%9A%84%E5%88%B7%E7%9B%98%E6%9C%BA%E5%88%B6"><span class="toc-number">9.</span> <span class="toc-text">RocketMQ Broker 的刷盘机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ-%E9%98%9F%E5%88%97-Queue-%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-number">10.</span> <span class="toc-text">RocketMQ 队列 Queue 分配算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E5%AE%B9%E9%94%99%E6%80%A7%E7%9A%84"><span class="toc-number">11.</span> <span class="toc-text">RocketMQ 是如何保证数据的高容错性的?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7-%EF%BC%9F"><span class="toc-number">12.</span> <span class="toc-text">RocketMQ 如何保证高可用性 ？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ-%E7%9A%84%E7%94%9F%E4%BA%A7%E8%80%85%EF%BC%8C%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%B5%81%E6%8E%A7-%EF%BC%9F"><span class="toc-number">13.</span> <span class="toc-text">RocketMQ 的生产者，如何进行流控 ？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B6%88%E8%B4%B9%E8%80%85%E6%B5%81%E7%A9%BA-%EF%BC%9F"><span class="toc-number">14.</span> <span class="toc-text">什么是消费者流空 ？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-broker-%E5%9B%9E%E6%BA%AF%E6%B6%88%E8%B4%B9-%EF%BC%9F"><span class="toc-number">15.</span> <span class="toc-text">什么是 broker 回溯消费 ？</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/10/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/%E5%BC%82%E6%AD%A5%E5%A4%9A%E7%BA%BF%E7%A8%8BCompletableFuture/" title="异步多线程CompletableFuture"><img src="/blog/img/index/%E5%A4%9A%E7%BA%BF%E7%A8%8B.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="异步多线程CompletableFuture"/></a><div class="content"><a class="title" href="/blog/2025/04/10/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/%E5%BC%82%E6%AD%A5%E5%A4%9A%E7%BA%BF%E7%A8%8BCompletableFuture/" title="异步多线程CompletableFuture">异步多线程CompletableFuture</a><time datetime="2025-04-10T14:38:34.000Z" title="发表于 2025-04-10 22:38:34">2025-04-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/09/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Java%20IO%E6%B5%81/" title="Java IO流"><img src="/blog/img/index/io%E6%B5%81.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="Java IO流"/></a><div class="content"><a class="title" href="/blog/2025/04/09/Java/%E5%B7%A5%E4%BD%9C%E6%8A%80%E5%B7%A7/Java%20IO%E6%B5%81/" title="Java IO流">Java IO流</a><time datetime="2025-04-09T04:42:19.000Z" title="发表于 2025-04-09 12:42:19">2025-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/05/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81SchedulerLock/" title="定时任务分布式锁SchedulerLock"><img src="/blog/img/index/springboot%20task3.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="定时任务分布式锁SchedulerLock"/></a><div class="content"><a class="title" href="/blog/2025/04/05/Java/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81SchedulerLock/" title="定时任务分布式锁SchedulerLock">定时任务分布式锁SchedulerLock</a><time datetime="2025-04-05T14:38:34.000Z" title="发表于 2025-04-05 22:38:34">2025-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/05/Java/SpringBoot/JWT%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/" title="JWT原理与应用"><img src="/blog/img/index/jwt.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="JWT原理与应用"/></a><div class="content"><a class="title" href="/blog/2025/04/05/Java/SpringBoot/JWT%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/" title="JWT原理与应用">JWT原理与应用</a><time datetime="2025-04-05T04:42:19.000Z" title="发表于 2025-04-05 12:42:19">2025-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/01/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%881-%E7%BA%BF%E7%A8%8B%EF%BC%89/" title="JUC（1-线程）"><img src="/blog/img/index/juc.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="JUC（1-线程）"/></a><div class="content"><a class="title" href="/blog/2025/04/01/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%881-%E7%BA%BF%E7%A8%8B%EF%BC%89/" title="JUC（1-线程）">JUC（1-线程）</a><time datetime="2025-04-01T14:38:34.000Z" title="发表于 2025-04-01 22:38:34">2025-04-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 爱编程的小生</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'Ov23liNpZt9z0EBGb12H',
+      clientSecret: 'd83ac7d23712d1736a16f48d83e99d97703782c5',
+      repo: 'blog',
+      owner: 'IT-PXS',
+      admin: ['IT-PXS'],
+      //id: '2025/03/27/心得/消息队列/RocketMQ/',
+      id: '5a10b253092b11feb6023ac9f794f7c1',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/blog/js/custom.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/blog/js/search/local-search.js"></script></div></div></body></html>
