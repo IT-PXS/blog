@@ -1,0 +1,395 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>CSS（1-基本概念） | 爱编程的小生</title><meta name="author" content="爱编程的小生"><meta name="copyright" content="爱编程的小生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="theme-color" content="#ffffff"><meta name="msvalidate.01" content="42D39FDCDA422F751C046EF1D3E47A32"><meta name="description" content="CSS（层叠样式表）是用于控制网页样式和布局的语言，通过选择器匹配HTML元素并设置属性（如颜色、字体、间距等）。其核心特性包括层叠性（规则优先级）、继承性（子元素继承父样式）以及盒模型（内容、内边距、边框、外边距）。CSS3进一步引入动画、渐变和响应式设计等高级功能，实现更丰富的视觉效果与适配多端显示。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSS（1-基本概念）">
+<meta property="og:url" content="https://github.com/IT-PXS/blog.git/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/index.html">
+<meta property="og:site_name" content="爱编程的小生">
+<meta property="og:description" content="CSS（层叠样式表）是用于控制网页样式和布局的语言，通过选择器匹配HTML元素并设置属性（如颜色、字体、间距等）。其核心特性包括层叠性（规则优先级）、继承性（子元素继承父样式）以及盒模型（内容、内边距、边框、外边距）。CSS3进一步引入动画、渐变和响应式设计等高级功能，实现更丰富的视觉效果与适配多端显示。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/IT-PXS/blog.git/img/index/css.png">
+<meta property="article:published_time" content="2025-04-17T04:42:19.000Z">
+<meta property="article:modified_time" content="2025-04-17T02:23:50.372Z">
+<meta property="article:author" content="爱编程的小生">
+<meta property="article:tag" content="CSS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/IT-PXS/blog.git/img/index/css.png"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="https://github.com/IT-PXS/blog.git/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7c3d43fea2824135a47becbdad0a5150";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: 爱编程的小生","link":"链接: ","source":"来源: 爱编程的小生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'CSS（1-基本概念）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-17 10:23:50'
+}</script><link rel="stylesheet" href="/blog/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/blog/img/butterfly-icon.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">87</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/blog/"><span class="site-name">爱编程的小生</span></a><a class="nav-page-title" href="/blog/"><span class="site-name">CSS（1-基本概念）</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">CSS（1-基本概念）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-04-17T04:42:19.000Z" title="发表于 2025-04-17 12:42:19">2025-04-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-17T02:23:50.372Z" title="更新于 2025-04-17 10:23:50">2025-04-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/%E5%89%8D%E7%AB%AF/">前端</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/blog/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h2 id="CSS">CSS</h2>
+<p>CSS 是层叠样式表（Cascading Style Sheet）的缩写，它的主要目的是为网页提供样式和时尚，CSS 提供颜色、布局、背景、字体和边框等属性。CSS 的功能允许更好的内容可及性，增强的灵活性和控制力，以及规范的表现特征。</p>
+<p><strong>核心概念</strong></p>
+<ol>
+<li>选择器（Selectors）：匹配 HTML 元素（如 <code>p</code>、<code>.class</code>、<code>#id</code>、<code>[attr]</code>）。</li>
+<li>属性和值（Properties &amp; Values）：定义样式，如 <code>color: red;</code>。</li>
+<li>盒模型（Box Model）：元素由 <code>content</code>、<code>padding</code>、<code>border</code>、<code>margin</code> 组成。</li>
+<li>布局方式：</li>
+</ol>
+<ul>
+<li>标准流（Normal Flow）：默认文档流。</li>
+<li>浮动（Float）：使元素脱离文档流（如 <code>float: left;</code>）。</li>
+<li>定位（Positioning）：<code>static</code>（默认）、<code>relative</code>、<code>absolute</code>、<code>fixed</code>、<code>sticky</code>。</li>
+</ul>
+<ol start="5">
+<li>层叠与继承：样式按优先级（<code>!important</code> &gt; 内联 &gt; ID &gt; 类 &gt; 标签）生效，部分属性可继承。</li>
+</ol>
+<h2 id="CSS3">CSS3</h2>
+<p>CSS3 是层叠样式表第 3 级的缩写，是 CSS 的高级版本，它用于结构化、风格化和格式化网页。CSS3 增加了一些新功能，所有现代网络浏览器都支持它，CSS3 最重要的特点是将 CSS 标准分割成独立的模块，使之更容易学习和使用。</p>
+<p>CSS3 的新功能如下：</p>
+<ol>
+<li>组合器：CSS3 有一个新的通用兄弟姐妹组合器，它通过 tilde(~)组合器与兄弟姐妹元素相匹配。</li>
+<li>CSS 选择器：与 CSS 提供的简单选择器相比，CSS3 的选择器要先进得多，它被称为一系列易于使用和简单的选择器。</li>
+<li>伪元素：大量新的伪元素已经被添加到 CSS3 中，以方便深入地进行样式设计。甚至还增加了一个新的双冒号惯例::。</li>
+<li>边框样式：最新的 CSS3 也有新的边框样式特性，如 border-radius、image-slice、image-source 和 “width stretch “的值等。</li>
+<li>背景样式属性：CSS3 中增加了新的功能，如 background-clip、size、style 和 origin 属性。</li>
+</ol>
+<p><strong>新特性</strong></p>
+<ol>
+<li>选择器增强</li>
+</ol>
+<ul>
+<li>属性选择器：<code>input[type=&quot;text&quot;]</code></li>
+<li>伪类选择器：<code>:hover</code>、<code>:focus</code>、<code>:nth-child(n)</code></li>
+<li>伪元素：<code>::before</code>、<code>::after</code></li>
+</ul>
+<ol start="2">
+<li>盒模型优化</li>
+</ol>
+<ul>
+<li><code>box-sizing</code>：
+<ul>
+<li><code>content-box</code>（默认，宽度不含 <code>padding</code> 和 <code>border</code>）</li>
+<li><code>border-box</code>（宽度包含 <code>padding</code> 和 <code>border</code>）</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>背景与边框</li>
+</ol>
+<ul>
+<li>多背景：<code>background: url(bg1.png), url(bg2.png);</code></li>
+<li>圆角：<code>border-radius: 10px;</code></li>
+<li>阴影：<code>box-shadow: 5px 5px 10px #000;</code></li>
+<li>渐变：<code>background: linear-gradient(red, blue);</code></li>
+</ul>
+<ol start="4">
+<li>动画与过渡</li>
+</ol>
+<ul>
+<li>
+<p>过渡（Transition）：平滑变化，如 <code>transition: all 0.3s ease;</code></p>
+</li>
+<li>
+<p>动画（Animation）：关键帧动画 <code>@keyframes</code> + <code>animation</code> 属性</p>
+</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@keyframes</span> slide &#123;</span><br><span class="line">  <span class="selector-tag">from</span> &#123; </span><br><span class="line">      <span class="attribute">transform</span>: <span class="built_in">translateX</span>(<span class="number">0</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-tag">to</span> &#123; </span><br><span class="line">      <span class="attribute">transform</span>: <span class="built_in">translateX</span>(<span class="number">100px</span>); </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.box</span> &#123; </span><br><span class="line">    <span class="attribute">animation</span>: slide <span class="number">2s</span> infinite; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>Flexbox 弹性布局</li>
+</ol>
+<ul>
+<li>容器属性：<code>display: flex;</code>、<code>justify-content</code>、<code>align-items</code></li>
+<li>子项属性：<code>flex-grow</code>、<code>flex-shrink</code>、<code>flex-basis</code></li>
+</ul>
+<ol start="6">
+<li>Grid 网格布局</li>
+</ol>
+<ul>
+<li>定义网格：<code>display: grid;</code> + <code>grid-template-columns</code></li>
+<li>布局控制：<code>grid-column</code>、<code>grid-row</code>、<code>gap</code></li>
+</ul>
+<ol start="7">
+<li>响应式设计（媒体查询）</li>
+</ol>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@media</span> (<span class="attribute">max-width</span>: <span class="number">768px</span>) &#123;</span><br><span class="line">    <span class="selector-tag">body</span> &#123; </span><br><span class="line">        <span class="attribute">font-size</span>: <span class="number">14px</span>; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="CSS-和-CSS3">CSS 和 CSS3</h2>
+<p><strong>区别</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">编号</th>
+<th style="text-align:center">CSS</th>
+<th style="text-align:center">CSS3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">CSS 能够对文本和对象进行定位。</td>
+<td style="text-align:center">CSS3 能够使网页更有吸引力，而且创建时间更短。CSS3 与 CSS 是向后兼容的。</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">CSS 中不支持响应式设计</td>
+<td style="text-align:center">CSS3 是最新的版本，因此它支持响应式设计。</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">CSS 不能被分割成模块。</td>
+<td style="text-align:center">CSS3 可以被分解成模块。</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">使用 CSS，不能建立 3D 动画和转换。</td>
+<td style="text-align:center">但在 CSS3 中，可以进行各种动画和转换，因为它支持动画和 3D 转换。</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">与 CSS3 相比，CSS 的速度非常慢</td>
+<td style="text-align:center">CSS3 则比 CSS 快。</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">在 CSS 中，我们有一套标准的颜色，它只使用基本的颜色方案。</td>
+<td style="text-align:center">CSS3 有一个很好的 HSL RGBA、HSLA 和渐变色的集合。</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">在 CSS 中，我们只能使用单个文本块。</td>
+<td style="text-align:center">但在 CSS3 中，我们可以使用多列文本块。</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">CSS 不支持媒体查询。</td>
+<td style="text-align:center">但 CSS3 支持媒体查询</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">CSS 代码不被所有类型的现代浏览器所支持。</td>
+<td style="text-align:center">作为最新的版本，CSS3 代码被所有现代浏览器所支持。</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">在 CSS 中，设计师必须手动开发圆滑的梯度和角。</td>
+<td style="text-align:center">但 CSS3 提供了先进的代码来设置圆滑的梯度和角。</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">在 CSS 中没有像阴影文本、文本动画等特殊效果，该动画是在 jQuery 和 JavaScript 中编码的。</td>
+<td style="text-align:center">CSS3 有许多先进的功能，如文本阴影、视觉效果以及各种字体样式和颜色。</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">在 CSS 中，用户可以为列表项和列表添加背景色，为列表项设置图像等。</td>
+<td style="text-align:center">而 CSS3 的列表中定义了一个特殊的显示属性。甚至列表项也有计数器重置属性。</td>
+</tr>
+<tr>
+<td style="text-align:center">13</td>
+<td style="text-align:center">CSS 是在 1996 年开发的。</td>
+<td style="text-align:center">CSS3 是 CSS 的最新版本，于 2005 年发布。</td>
+</tr>
+<tr>
+<td style="text-align:center">14</td>
+<td style="text-align:center">CSS 是内存密集型的。</td>
+<td style="text-align:center">与 CSS 相比，CSS3 的内存消耗很低。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总结</strong></p>
+<ol>
+<li>CSS 负责网页的基本样式，核心包括选择器、盒模型、浮动和定位。</li>
+<li>CSS3 扩展了 CSS 的能力，提供动画、弹性布局、网格布局、响应式设计等现代 Web 开发必备功能。</li>
+<li>Flexbox 和 Grid 极大简化了复杂布局的实现，而媒体查询让网页适配不同设备。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://IT-PXS.github.io/blog">爱编程的小生</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://github.com/IT-PXS/blog.git/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/">https://github.com/IT-PXS/blog.git/2025/04/17/前端/三件套/css/CSS（1-基本概念）/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://github.com/IT-PXS/blog.git" target="_blank">爱编程的小生</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/CSS/">CSS</a></div><div class="post-share"><div class="social-share" data-image="/blog/img/index/css.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/blog/2025/04/16/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/html/HTML%EF%BC%882-%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84%EF%BC%89/" title="HTML（2-语法结构）"><img class="cover" src="/blog/img/index/html.png" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">HTML（2-语法结构）</div></div><div class="info-2"><div class="info-item-1">HTML（超文本标记语言）的语法结构基于标签和属性，标签由尖括号包围（如<tag>），通常成对出现（<tag>内容</tag>）。属性用于定义元素的特性（如<img src="image.jpg">），文档结构包括<!DOCTYPE>声明、<html>根元素，以及<head>和<body>部分。HTML5简化了语法，支持自闭合标签（如<br>），强调语义化标签（如<header>、<article>）以提升可读性和SEO。</div></div></div></a><a class="pagination-related" href="/blog/2025/04/18/Java/SpringBoot/SpringBoot%EF%BC%8810-Cache%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%EF%BC%89/" title="SpringBoot（10-Cache缓存使用）"><img class="cover" src="/blog/img/index/springboot.jpg" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">SpringBoot（10-Cache缓存使用）</div></div><div class="info-2"><div class="info-item-1">SpringBoot通过@EnableCaching开启缓存支持，整合Redis、Ehcache等组件只需简单配置。常用注解如@Cacheable（查询缓存）、@CachePut（更新缓存）、@CacheEvict（删除缓存）可轻松实现数据缓存，显著提升应用性能，减少数据库压力，适用于高频读取场景。</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">爱编程的小生</div><div class="author-info-description">一个IT爱好者</div><div class="site-data"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">87</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" href="https://github.com/IT-PXS"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/IT-PXS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3032428600@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">作者很懒，有时间就更新，微信公众号：爱编程的小生，邮箱：3032428600@qq.com</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS"><span class="toc-number">1.</span> <span class="toc-text">CSS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS3"><span class="toc-number">2.</span> <span class="toc-text">CSS3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS-%E5%92%8C-CSS3"><span class="toc-number">3.</span> <span class="toc-text">CSS 和 CSS3</span></a></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>CSS</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="CSS（1-基本概念）"><img src="/blog/img/index/css.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="CSS（1-基本概念）"></a><div class="content"><a class="title" href="/blog/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="CSS（1-基本概念）">CSS（1-基本概念）</a><time datetime="2025-04-17T04:42:19.000Z" title="发表于 2025-04-17 12:42:19">2025-04-17</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/18/Java/SpringBoot/SpringBoot%EF%BC%8810-Cache%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%EF%BC%89/" title="SpringBoot（10-Cache缓存使用）"><img src="/blog/img/index/springboot.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="SpringBoot（10-Cache缓存使用）"/></a><div class="content"><a class="title" href="/blog/2025/04/18/Java/SpringBoot/SpringBoot%EF%BC%8810-Cache%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%EF%BC%89/" title="SpringBoot（10-Cache缓存使用）">SpringBoot（10-Cache缓存使用）</a><time datetime="2025-04-18T14:38:34.000Z" title="发表于 2025-04-18 22:38:34">2025-04-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="CSS（1-基本概念）"><img src="/blog/img/index/css.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="CSS（1-基本概念）"/></a><div class="content"><a class="title" href="/blog/2025/04/17/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="CSS（1-基本概念）">CSS（1-基本概念）</a><time datetime="2025-04-17T04:42:19.000Z" title="发表于 2025-04-17 12:42:19">2025-04-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/16/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/html/HTML%EF%BC%882-%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84%EF%BC%89/" title="HTML（2-语法结构）"><img src="/blog/img/index/html.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="HTML（2-语法结构）"/></a><div class="content"><a class="title" href="/blog/2025/04/16/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/html/HTML%EF%BC%882-%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84%EF%BC%89/" title="HTML（2-语法结构）">HTML（2-语法结构）</a><time datetime="2025-04-16T04:42:19.000Z" title="发表于 2025-04-16 12:42:19">2025-04-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/15/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/html/HTML%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="HTML（1-基本概念）"><img src="/blog/img/index/html.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="HTML（1-基本概念）"/></a><div class="content"><a class="title" href="/blog/2025/04/15/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/html/HTML%EF%BC%881-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%89/" title="HTML（1-基本概念）">HTML（1-基本概念）</a><time datetime="2025-04-15T04:42:19.000Z" title="发表于 2025-04-15 12:42:19">2025-04-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/13/Java/SpringBoot/SpringBoot%EF%BC%889-%E6%97%A5%E5%BF%97%E8%AE%BE%E7%BD%AE%E5%92%8C%E5%B1%9E%E6%80%A7%E8%AF%A6%E8%A7%A3%EF%BC%89/" title="SpringBoot（9-日志设置和属性详解）"><img src="/blog/img/index/springboot.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="SpringBoot（9-日志设置和属性详解）"/></a><div class="content"><a class="title" href="/blog/2025/04/13/Java/SpringBoot/SpringBoot%EF%BC%889-%E6%97%A5%E5%BF%97%E8%AE%BE%E7%BD%AE%E5%92%8C%E5%B1%9E%E6%80%A7%E8%AF%A6%E8%A7%A3%EF%BC%89/" title="SpringBoot（9-日志设置和属性详解）">SpringBoot（9-日志设置和属性详解）</a><time datetime="2025-04-13T14:38:34.000Z" title="发表于 2025-04-13 22:38:34">2025-04-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 爱编程的小生</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'Ov23liNpZt9z0EBGb12H',
+      clientSecret: 'd83ac7d23712d1736a16f48d83e99d97703782c5',
+      repo: 'blog',
+      owner: 'IT-PXS',
+      admin: ['IT-PXS'],
+      //id: '2025/04/17/前端/三件套/css/CSS（1-基本概念）/',
+      id: '949f99718426e029ea4e1491ed6aaa95',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/blog/js/custom.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/blog/js/search/local-search.js"></script></div></div></body></html>
