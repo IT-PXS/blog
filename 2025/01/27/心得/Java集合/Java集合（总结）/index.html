@@ -1,0 +1,410 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Java集合（总结） | 爱编程的小生</title><meta name="author" content="爱编程的小生"><meta name="copyright" content="爱编程的小生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="theme-color" content="#ffffff"><meta name="msvalidate.01" content="42D39FDCDA422F751C046EF1D3E47A32"><meta name="description" content="Java集合框架提供了高效的数据存储和操作方式，包括List、Set、Queue和Map等核心接口。ArrayList和LinkedList适用于动态数组和链表场景，HashSet和TreeSet实现无序和有序集合，HashMap和ConcurrentHashMap支持键值对存储及并发访问。集合框架优化了数据管理，是Java开发的重要工具。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java集合（总结）">
+<meta property="og:url" content="https://github.com/IT-PXS/blog.git/2025/01/27/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Java%E9%9B%86%E5%90%88%EF%BC%88%E6%80%BB%E7%BB%93%EF%BC%89/index.html">
+<meta property="og:site_name" content="爱编程的小生">
+<meta property="og:description" content="Java集合框架提供了高效的数据存储和操作方式，包括List、Set、Queue和Map等核心接口。ArrayList和LinkedList适用于动态数组和链表场景，HashSet和TreeSet实现无序和有序集合，HashMap和ConcurrentHashMap支持键值对存储及并发访问。集合框架优化了数据管理，是Java开发的重要工具。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/IT-PXS/blog.git/img/index/java.jpg">
+<meta property="article:published_time" content="2025-01-27T14:38:34.000Z">
+<meta property="article:modified_time" content="2025-04-28T13:59:11.438Z">
+<meta property="article:author" content="爱编程的小生">
+<meta property="article:tag" content="Java集合">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/IT-PXS/blog.git/img/index/java.jpg"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="https://github.com/IT-PXS/blog.git/2025/01/27/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Java%E9%9B%86%E5%90%88%EF%BC%88%E6%80%BB%E7%BB%93%EF%BC%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7c3d43fea2824135a47becbdad0a5150";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: 爱编程的小生","link":"链接: ","source":"来源: 爱编程的小生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Java集合（总结）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-28 21:59:11'
+}</script><link rel="stylesheet" href="/blog/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/blog/img/butterfly-icon.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/blog/"><span class="site-name">爱编程的小生</span></a><a class="nav-page-title" href="/blog/"><span class="site-name">Java集合（总结）</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Java集合（总结）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-27T14:38:34.000Z" title="发表于 2025-01-27 22:38:34">2025-01-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-28T13:59:11.438Z" title="更新于 2025-04-28 21:59:11">2025-04-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/Java%E9%9B%86%E5%90%88/">Java集合</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/blog/2025/01/27/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Java%E9%9B%86%E5%90%88%EF%BC%88%E6%80%BB%E7%BB%93%EF%BC%89/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h2 id="Java-集合">Java 集合</h2>
+<p>Java 中的集合类主要由 Collection 和 Map 这两个接口派生而出，其中 Collection 接口又派生出三个子接口，分别是 Set、List、Queue。所有的 Java 集合类，都是 Set、List、Queue、Map 这四个接口的实现类。</p>
+<ol>
+<li>Set 代表无序的、元素不可重复的集合</li>
+<li>List 代表有序的、元素可以重复的集合</li>
+<li>Queue 代表先进先出（FIFO）队列</li>
+<li>Map 代表具有映射关系（key-value）集合</li>
+</ol>
+<p><img src="3.png" alt=""></p>
+<p><img src="4.png" alt=""></p>
+<p><strong>Collection 和 Collections 的区别</strong></p>
+<ol>
+<li>Collection：是最基本的集合接口，它的直接继承接口有 List，Set 和 Queue</li>
+<li>Collections：它是集合类的一个工具类，此类不能被实例化，实现对各种集合的搜索、排序、线程安全等操作</li>
+</ol>
+<h2 id="List">List</h2>
+<h3 id="ArrayList-和-LinkedList">ArrayList 和 LinkedList</h3>
+<p><strong>区别</strong></p>
+<ol>
+<li>ArrayList 底层是基于数组实现的，查找快，增删较慢；LinkedList 底层是基于链表（JDK1.6 之前为循环链表，JDK1.7 取消了循环）实现的，查找慢，增删快</li>
+<li>LinkedList 比 ArrayList 更占内存，因为 LinkedList 的节点除了存储数据，还存储了两个引用，一个指向前一个元素，一个指向后一个元素；而 ArrayList 的空间浪费主要体现在 list 列表的结尾会预留一定的容量空间</li>
+<li>LinkedList 不支持高效的随机元素访问，而 ArrayList 支持（实现了 RandomAccess 接口）</li>
+</ol>
+<p><strong>ArrayList 的增删未必比 LinkedList 要慢</strong></p>
+<ol>
+<li>如果增删都是在末尾来操作，此时 ArrayList 就不需要移动和复制数组来进行操作了</li>
+<li>如果删除操作的位置在中间，由于 LinkerList 的消耗主要是在遍历上，ArrayList 的消耗主要是在移动和复制上。如果数据量有百万级时，LinkedList 的遍历速度是要慢于 ArrayList</li>
+</ol>
+<h3 id="线程安全的-List">线程安全的 List</h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>示例</th>
+<th>原理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vector</td>
+<td>List list = new ArrayList();<br />替换为 List list = new Vector &lt;&gt;();</td>
+<td>使用了 synchronized 关键字</td>
+</tr>
+<tr>
+<td>Collections.synchronizedList(list)</td>
+<td>List &lt; String &gt; list = Collections.synchronizedList(new ArrayList &lt; String &gt;());<br />操作外部 list，实际上修改的是原来 list 的数据</td>
+<td>所有方法都加了 synchronzied 修饰，加锁的对象是当前 SynchronizedCollection 实例</td>
+</tr>
+<tr>
+<td>CopyOnWriteArrayList</td>
+<td>CopyOnWriteArrayList &lt; String &gt; list = new CopyOnWriteArrayList &lt; String &gt;();<br />适用于读多写少的并发场景</td>
+<td>Write 的时候总是要 Copy（将原来 array 复制到新的 array，修改后，将引用指向新数组）。任何可变的操作（add、set、remove 等）都通过 ReentrantLock 控制并发</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Map">Map</h2>
+<h3 id="线程安全的-Map">线程安全的 Map</h3>
+<ol>
+<li>使用 Collections 工具类，将线程不安全的 Map 包装成线程安全的 Map</li>
+<li>使用 java.util.concurrent 包下的 Map，如：ConcurrentHashMap</li>
+<li>不建议使用 Hashtable，虽然 Hashtable 是线程安全的，但是性能较差</li>
+</ol>
+<h3 id="HashMap-与-Hashtable">HashMap 与 Hashtable</h3>
+<p>区别：</p>
+<ol>
+<li>Hashtable 不允许 key 和 value 为 null，每个 key 值获取其 hash 值时，必须调用 key.hashCode()方法，此时 key 为 null 时也会抛出 NullPointerException；而 HashMap 则允许 key 和 value 为 null，HashMap 中的 key 获取其 hash 值的方法是重写的</li>
+<li>创建时如果不指定容量初始值，Hashtable 默认的初始大小为 11，之后每次扩充，容量变为原来的 2*n+1；HashMap 默认的初始化大小为 16，之后每次扩充，容量变为原来的 2 倍</li>
+<li>创建时如果给定了容量初始值，那么 Hashtable 会直接使用你给定的大小；而 HashMap 会将其扩充为 2 的幂次方大小，HashMap 总是使用 2 的幂作为哈希表的大小</li>
+<li>Hashtable 是线程安全的，但是 Hashtable 线程安全的策略实现代价却太大，get/put 相关操作都是 synchronized 的，相当于给整个 hash 表加了一把大锁。多线程访问时候，只要有一个线程访问或操作该对象，那其他线程只能阻塞，相当于将所有的操作串行化，在竞争激烈的并发场景中性能就会非常差；HashMap 不是线程安全的</li>
+<li>Hashtable 和 HashMap 的方法大都是一样的，不过 Hashtable 的方法都加上了 synchronized</li>
+<li>JDK1.8 以后的 HashMap 在解决哈希冲突时有了较大的变化，当链表长度大于阈值（默认为 8）且表数组长度 &gt;= 64 时，将链表转化为红黑树，以减少搜索时间。Hashtable 没有这样的机制</li>
+</ol>
+<h3 id="HashMap-与-ConcurrentHashMap">HashMap 与 ConcurrentHashMap</h3>
+<p>区别：</p>
+<ol>
+<li>HashMap 不是线程安全的；而 ConcurrentHashMap 是线程安全的</li>
+<li>ConcurrentHashMap1.7 采用锁分段技术，将整个 Hash 桶进行了分段 Segment，也就是将这个大的数组分成了几个小的分段 Segment，而且每个小的片段 Segment 上面都有锁存在，那么在插入元素的时候就需要先找到应该插入到哪一个片段 Segment，然后再在这个片段上面进行插入，而且这里还需要获取 Segment 锁，这样做明显减小了锁的粒度</li>
+</ol>
+<h3 id="Hashtable-和-ConcurrentHashMap">Hashtable 和 ConcurrentHashMap</h3>
+<p>区别：</p>
+<ol>
+<li>Hashtable 和 ConcurrentHashMap 相比，效率低。Hashtable 之所以效率低主要是使用了 synchronized 关键字对 put 等操作进行加锁，而 synchronized 关键字加锁是对整张 hash 表的，即每次锁住整张表让线程独占，致使效率低下；而 ConcurrentHashMap 在对象中保存了一个 Segment 数组，即将整个 hash 表划分为多个分段，而每个 Segment 元素，即每个分段则类似于一个 Hashtable，在执行 put 操作时首先根据 hash 算法定位到元素属于哪个 Segment，然后对该 Segment 加锁即可。因此，ConcurrentHashMap 在多线程并发编程中可以实现多线程 put 操作</li>
+<li>在 JDK1.7 的时候，ConcurrentHashMap（分段锁）对整个桶数组进行了分割分段（Segment），每一把锁只锁容器其中一部分数据，多线程访问容器里不同数据段的数据，就不会存在锁竞争，提高并发访问率。到了 JDK1.8 的时候已经摒弃了 Segment 的概念，而是直接用 Node 数组+链表+红黑树的数据结构来实现，并发控制使用 synchronized 和 CAS 来操作。Hashtable（同一把锁）：使用 synchronized 来保证线程安全，效率非常低下。当一个线程访问同步方法时，其他线程也访问同步方法，可能会进入阻塞或轮询状态，如使用 put 添加元素，另一个线程不能使用 put 添加元素，也不能使用 get，竞争会越来越激烈，效率越低</li>
+</ol>
+<h3 id="HashMap-和-TreeMap">HashMap 和 TreeMap</h3>
+<p>区别：</p>
+<ol>
+<li>HashMap 继承 AbstractMap 类，覆盖了 hashCode()和 equals()方法，以确保两个相等的映射返回相同的哈希值；TreeMap 继承 SortedMap 类，它保持键的有序顺序</li>
+<li>HashMap 是基于哈希表实现的，可以调整初始容量和负载因子；TreeMap 是基于红黑树实现的，没有调优选项，因为红黑树总是处于平衡的状态</li>
+</ol>
+<h3 id="ConcurrentHashMap1-7-与-1-8">ConcurrentHashMap1.7 与 1.8</h3>
+<p><strong>扩容的区别</strong></p>
+<ol>
+<li>JDK 1.7 中的扩容：</li>
+</ol>
+<ul>
+<li>
+<p>基于 Segment：ConcurrentHashMap 是由多个 segment 组成的，每个 segment 中包含一个 HashMap。当某个 segment 内的 HashMap 达到扩容阈值时单独为该 segment 进行扩容，而不会影响其他 segment 。</p>
+</li>
+<li>
+<p>扩容过程：每个 segment 维护自己的负载因子，当 segment 中的元素数量超过阈值时，该 segment 的 Hashmap 会扩容，整体的 ConcurrentHashmap 并不是一次性全部扩容。</p>
+</li>
+</ul>
+<ol start="2">
+<li>JDK 1.8 中的扩容：</li>
+</ol>
+<ul>
+<li>
+<p>全局扩容：ConcurrentHashMap 取消了 segment，变成了一个全局的数组（类似于 Hashmap）。因此，当 ConcurrentHashMap 中任意位置的元素超过阈值时，整个 ConcurrentHashMap 的数组都会被扩容。</p>
+</li>
+<li>
+<p>基于 CAS 的扩容：在扩容时， ConcurrentHashMap 采用了类似 HashMap 的方式，但通过 CAS 操作确保线程安全，避免了锁住整个数组。在扩容时，多个线程可以同时帮助完成扩容操作。</p>
+</li>
+<li>
+<p>渐进式扩容：JDK1.8 的 ConcurrentHashMap 引入了渐进式扩容机制，扩容时并不是一次性将所有数据重新分配，而是多个线程共同参与，逐步迁移旧数据到新数组中，降低了扩容时的性能开销。</p>
+</li>
+</ul>
+<h2 id="Set">Set</h2>
+<h3 id="TreeSet-和-HashSet">TreeSet 和 HashSet</h3>
+<p>区别：</p>
+<ol>
+<li>HashSet 中的元素可以是 null，但 TreeSet 中的元素不能是 null</li>
+<li>HashSet 不能保证元素的排列顺序，而 TreeSet 支持自然排序、定制排序两种排序的方式</li>
+<li>HashSet 底层是采用哈希表实现的，而 TreeSet 底层是采用红黑树实现的</li>
+</ol>
+<h2 id="Queue">Queue</h2>
+<h3 id="ArrayDeque-与-LinkedList">ArrayDeque 与 LinkedList</h3>
+<p>区别：</p>
+<ol>
+<li>ArrayDeque 是基于可变长的数组和双指针来实现，而 LinkedList 则通过链表来实现</li>
+<li>ArrayDeque 不支持存储 NULL 数据，但 LinkedList 支持</li>
+<li>ArrayDeque 是在 JDK1.6 才被引入的，而 LinkedList 早在 JDK1.2 时就已经存在</li>
+<li>ArrayDeque 插入时可能存在扩容过程，不过均摊后的插入操作依然为 O（1），虽然 LinkedList 不需要扩容，但是每次插入数据时均需要申请新的堆空间，均摊性能相比更慢</li>
+</ol>
+<p>从性能的角度上，选用 ArrayDeque 来实现队列要比 LinkedList 更好</p>
+<h2 id="Iterator">Iterator</h2>
+<h3 id="Iterator-的使用">Iterator 的使用</h3>
+<ol>
+<li>hasNext()：检查序列中是否还有元素</li>
+<li>next()：获得序列中的下一个元素</li>
+<li>remove()：将迭代器新返回的元素删除</li>
+</ol>
+<h3 id="ListIterator-的使用">ListIterator 的使用</h3>
+<ol>
+<li>add(E e)：将指定的元素插入列表，插入位置为迭代器当前位置之前</li>
+<li>hasNext()：正向遍历列表</li>
+<li>hasPrevious()：逆向遍历列表</li>
+<li>next()：返回列表中 ListIterator 指向位置后面的元素</li>
+<li>nextIndex()：返回列表中 ListIterator 所需位置后面元素的索引</li>
+<li>previous()：返回列表中 ListIterator 指向位置前面的元素</li>
+<li>previousIndex()：返回列表中 ListIterator 所需位置前面元素的索引</li>
+<li>remove()：从列表中删除 next()或 previous()返回的元素</li>
+<li>set(E e)：从列表中将 next()或 previous()返回的元素更改为指定元素</li>
+</ol>
+<h3 id="Enumeration-的使用">Enumeration 的使用</h3>
+<ol>
+<li>hasMoreElements()：是否包含更多的元素</li>
+<li>nextElement()：返回下一个元素</li>
+</ol>
+<h3 id="Iterator-和-ListIterator">Iterator 和 ListIterator</h3>
+<p>区别：</p>
+<ol>
+<li>Iterator 可以应用于所有的集合，而 ListIterator 只能用于 List 及其子类型</li>
+<li>ListIterator 有 add 方法，可以向 List 中添加对象，而 Iterator 不能</li>
+<li>ListIterator 既可以向前遍历也可以向后遍历，而 Iterator 只能向后遍历</li>
+<li>ListIterator 可以定位当前索引的位置（nextIndex()和 previousIndex()），Iterator 没有此功能</li>
+</ol>
+<h3 id="Iterator-和-Enumeration">Iterator 和 Enumeration</h3>
+<p>区别：</p>
+<ol>
+<li>与 Enumeration 相比，Iterator 更加安全，当一个集合正在被遍历的时候，它会阻止其他线程去修改集合，否则会抛出 ConcurrentModificationException 异常，这就是 fail-fast 机制</li>
+<li>Enumeration 和 Iterator 能读取集合的数据，但 Iterator 能够删除元素，Enumeration 并不能删除元素</li>
+<li>Enumeration 速度是 Iterator 的 2 倍，同时占用更少的内存，但是 Iterator 远远比 Enumeration 安全</li>
+</ol>
+<h3 id="fail-fast-与-fail-safe">fail-fast 与 fail-safe</h3>
+<ol>
+<li>fail-fast（快速失败）：直接在容器上进行遍历，在遍历过程中，一旦发现容器中的数据被修改了，会立刻抛出 ConcurrentModificationException 异常导致遍历失败</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span>  </span><br><span class="line"><span class="keyword">public</span> E <span class="title function_">next</span><span class="params">()</span> &#123;  </span><br><span class="line">    checkForComodification();  </span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> cursor;  </span><br><span class="line">    <span class="keyword">if</span> (i &gt;= size)  </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NoSuchElementException</span>();  </span><br><span class="line">    Object[] elementData = ArrayList.<span class="built_in">this</span>.elementData;  </span><br><span class="line">    <span class="keyword">if</span> (i &gt;= elementData.length)  </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConcurrentModificationException</span>();  </span><br><span class="line">    cursor = i + <span class="number">1</span>;  </span><br><span class="line">    <span class="keyword">return</span> (E) elementData[lastRet = i];  </span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">checkForComodification</span><span class="params">()</span> &#123;  </span><br><span class="line">    <span class="keyword">if</span> (modCount != expectedModCount)  </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConcurrentModificationException</span>();  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>fail-safe（安全失败）：这种遍历基于容器的一个克隆，因此对容器内容的修改不影响遍历，可以在多线程下并发使用、修改，例如：ConcurrentHashMap 和 CopyOnWriteArrayList</li>
+</ol>
+<p>原理：采用安全失败机制的集合容器，在遍历时不是直接在集合内容上访问的，而是先复制原有集合内容，在拷贝的集合上进行遍历，由于迭代时是对原集合的拷贝进行遍历，所以在遍历过程中对原集合的修改并不能被迭代器检测到，所以不会触发 ConcurrentModificationException</p>
+<h2 id="其他">其他</h2>
+<h3 id="Comparable-和-Comparator-的区别">Comparable 和 Comparator 的区别</h3>
+<ol>
+<li>Comparable 是通过重写 compareTo 方法实现排序的，而 Comparator 是通过重写 compare 方法实现排序的；</li>
+<li>Comparable 必须由自定义类内部实现排序方法，而 Comparator 是外部定义并实现排序的；</li>
+<li>用 Comparable 简单， 只要实现 Comparable 接口的对象直接就成为一个可以比较的对象，但是需要修改源代码；用 Comparator 的好处是不需要修改源代码， 而是另外实现一个比较器， 当某个自定义的对象需要作比较的时候，把比较器和对象一起传递过去就可以比大小了</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://IT-PXS.github.io/blog">爱编程的小生</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://github.com/IT-PXS/blog.git/2025/01/27/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Java%E9%9B%86%E5%90%88%EF%BC%88%E6%80%BB%E7%BB%93%EF%BC%89/">https://github.com/IT-PXS/blog.git/2025/01/27/心得/Java集合/Java集合（总结）/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://github.com/IT-PXS/blog.git" target="_blank">爱编程的小生</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/Java%E9%9B%86%E5%90%88/">Java集合</a></div><div class="post-share"><div class="social-share" data-image="/blog/img/index/java.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/blog/2025/01/26/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Set%EF%BC%881-HashSet%EF%BC%89/" title="Set（1-HashSet）"><img class="cover" src="/blog/img/index/java.jpg" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Set（1-HashSet）</div></div><div class="info-2"><div class="info-item-1">Java 的 HashSet 是基于哈希表实现的集合，用于存储不重复的元素。它不保证元素顺序，支持快速查找、添加和删除操作，时间复杂度为 O(1)。适合处理需要高效去重的场景，但因无序性不适合需要保持顺序的需求。</div></div></div></a><a class="pagination-related" href="/blog/2025/01/29/%E5%BF%83%E5%BE%97/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80%EF%BC%888-%E5%85%B6%E4%BB%96%EF%BC%89/" title="Java基础（8-其他）"><img class="cover" src="/blog/img/index/java2.jpg" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Java基础（8-其他）</div></div><div class="info-2"><div class="info-item-1">JDK 和 JRE、JVM 区别  JRE：Java 运行环境，提供了 Java 运行所需的环境，包含了 JVM、核心类库和其他支持运行 Java 程序的文件 JDK：Java 开发工具包，提供了 Java 的开发环境和运行环境。JDK 包含了 JRE，如果只运行 Java 程序，安装 JRE 即可，要编写 Java 程序需安装 JDK JVM：Java 虚拟机，是整个 Java...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/blog/2024/12/10/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/List%EF%BC%882-LinkedList%EF%BC%89/" title="List（2-LinkedList）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-10</div><div class="info-item-2">List（2-LinkedList）</div></div><div class="info-2"><div class="info-item-1">LinkedList是Java集合框架中的双向链表实现，位于java.util包中。它支持列表、队列和双端队列操作，适合频繁插入和删除元素的场景。与ArrayList相比，LinkedList在随机访问上效率较低，但在插入和删除中间元素时性能更优。线程不安全，如需同步需手动处理。</div></div></div></a><a class="pagination-related" href="/blog/2024/12/09/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/List%EF%BC%881-ArrayList%EF%BC%89/" title="List（1-ArrayList）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-09</div><div class="info-item-2">List（1-ArrayList）</div></div><div class="info-2"><div class="info-item-1">ArrayList是Java集合框架中的动态数组实现，位于java.util包中。它提供可变大小的数组，支持随机访问和增删操作。相比数组，ArrayList自动扩容，使用更灵活，但线程不安全，需手动同步。适用于频繁读取或按索引操作的场景，但插入和删除中间元素效率较低。</div></div></div></a><a class="pagination-related" href="/blog/2024/12/11/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/List%EF%BC%883-CopyOnWriteArrayList%EF%BC%89/" title="List（3-CopyOnWriteArrayList）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-11</div><div class="info-item-2">List（3-CopyOnWriteArrayList）</div></div><div class="info-2"><div class="info-item-1">CopyOnWriteArrayList是Java集合框架中线程安全的列表实现，适用于并发环境。其核心特性是在写操作时复制底层数组，确保读操作不受影响。适合读多写少的场景，提供一致性快照和线程安全性，但因复制开销较高，不适用于高频写操作。位于java.util.concurrent包中。</div></div></div></a><a class="pagination-related" href="/blog/2025/01/20/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Map%EF%BC%881-HashMap%EF%BC%89/" title="Map（1-HashMap）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-20</div><div class="info-item-2">Map（1-HashMap）</div></div><div class="info-2"><div class="info-item-1">Java 的 HashMap 是一种基于哈希表的数据结构，用于存储键值对，支持快速插入、删除和查找操作。它允许 null 键和 null 值，非线程安全。通过哈希函数计算键的哈希值，将数据存储在桶中，冲突通过链表或红黑树解决。适用于高效键值映射场景。</div></div></div></a><a class="pagination-related" href="/blog/2025/01/23/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Map%EF%BC%882-Hashtable%EF%BC%89/" title="Map（2-Hashtable）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-23</div><div class="info-item-2">Map（2-Hashtable）</div></div><div class="info-2"><div class="info-item-1">Java 的 Hashtable 是一种线程安全的键值对存储数据结构，基于哈希表实现。它不允许 null 键或 null 值，支持同步操作，因此适用于多线程环境。通过哈希函数存储数据，使用链表解决冲突，但性能较 HashMap 略低。常用于需要线程安全的场景，但多被 ConcurrentHashMap 替代。</div></div></div></a><a class="pagination-related" href="/blog/2025/01/25/%E5%BF%83%E5%BE%97/Java%E9%9B%86%E5%90%88/Map%EF%BC%883-LinkedHashMap%EF%BC%89/" title="Map（3-LinkedHashMap）"><img class="cover" src="/blog/img/index/java.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-25</div><div class="info-item-2">Map（3-LinkedHashMap）</div></div><div class="info-2"><div class="info-item-1">Java LinkedHashMap是基于哈希表和双向链表实现的Map集合，维护元素的插入顺序或访问顺序。它支持快速插入、删除和访问操作，同时可通过设置accessOrder为true实现按最近访问排序。常用于缓存实现等场景，需注意其空间开销较普通HashMap稍高。</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">爱编程的小生</div><div class="author-info-description">一个IT爱好者</div><div class="site-data"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><a id="card-info-btn" href="https://github.com/IT-PXS"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/IT-PXS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3032428600@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">作者很懒，有时间就更新，微信公众号：爱编程的小生，邮箱：3032428600@qq.com</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-%E9%9B%86%E5%90%88"><span class="toc-number">1.</span> <span class="toc-text">Java 集合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#List"><span class="toc-number">2.</span> <span class="toc-text">List</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayList-%E5%92%8C-LinkedList"><span class="toc-number">2.1.</span> <span class="toc-text">ArrayList 和 LinkedList</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84-List"><span class="toc-number">2.2.</span> <span class="toc-text">线程安全的 List</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Map"><span class="toc-number">3.</span> <span class="toc-text">Map</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84-Map"><span class="toc-number">3.1.</span> <span class="toc-text">线程安全的 Map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-%E4%B8%8E-Hashtable"><span class="toc-number">3.2.</span> <span class="toc-text">HashMap 与 Hashtable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-%E4%B8%8E-ConcurrentHashMap"><span class="toc-number">3.3.</span> <span class="toc-text">HashMap 与 ConcurrentHashMap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hashtable-%E5%92%8C-ConcurrentHashMap"><span class="toc-number">3.4.</span> <span class="toc-text">Hashtable 和 ConcurrentHashMap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-%E5%92%8C-TreeMap"><span class="toc-number">3.5.</span> <span class="toc-text">HashMap 和 TreeMap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConcurrentHashMap1-7-%E4%B8%8E-1-8"><span class="toc-number">3.6.</span> <span class="toc-text">ConcurrentHashMap1.7 与 1.8</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Set"><span class="toc-number">4.</span> <span class="toc-text">Set</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TreeSet-%E5%92%8C-HashSet"><span class="toc-number">4.1.</span> <span class="toc-text">TreeSet 和 HashSet</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Queue"><span class="toc-number">5.</span> <span class="toc-text">Queue</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayDeque-%E4%B8%8E-LinkedList"><span class="toc-number">5.1.</span> <span class="toc-text">ArrayDeque 与 LinkedList</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iterator"><span class="toc-number">6.</span> <span class="toc-text">Iterator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Iterator-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">6.1.</span> <span class="toc-text">Iterator 的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ListIterator-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">6.2.</span> <span class="toc-text">ListIterator 的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Enumeration-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">6.3.</span> <span class="toc-text">Enumeration 的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Iterator-%E5%92%8C-ListIterator"><span class="toc-number">6.4.</span> <span class="toc-text">Iterator 和 ListIterator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Iterator-%E5%92%8C-Enumeration"><span class="toc-number">6.5.</span> <span class="toc-text">Iterator 和 Enumeration</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fail-fast-%E4%B8%8E-fail-safe"><span class="toc-number">6.6.</span> <span class="toc-text">fail-fast 与 fail-safe</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">7.</span> <span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Comparable-%E5%92%8C-Comparator-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">7.1.</span> <span class="toc-text">Comparable 和 Comparator 的区别</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/02/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%882-%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%89/" title="JUC（2-线程池）"><img src="/blog/img/index/juc.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="JUC（2-线程池）"/></a><div class="content"><a class="title" href="/blog/2025/05/02/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%882-%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%89/" title="JUC（2-线程池）">JUC（2-线程池）</a><time datetime="2025-05-02T14:38:34.000Z" title="发表于 2025-05-02 22:38:34">2025-05-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/01/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%881-%E5%A4%9A%E7%BA%BF%E7%A8%8B%EF%BC%89/" title="JUC（1-多线程）"><img src="/blog/img/index/juc.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="JUC（1-多线程）"/></a><div class="content"><a class="title" href="/blog/2025/05/01/%E5%BF%83%E5%BE%97/JUC/JUC%EF%BC%881-%E5%A4%9A%E7%BA%BF%E7%A8%8B%EF%BC%89/" title="JUC（1-多线程）">JUC（1-多线程）</a><time datetime="2025-05-01T14:38:34.000Z" title="发表于 2025-05-01 22:38:34">2025-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/23/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%882-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%89/" title="MySQL（2-存储过程和函数）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（2-存储过程和函数）"/></a><div class="content"><a class="title" href="/blog/2025/04/23/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%882-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%89/" title="MySQL（2-存储过程和函数）">MySQL（2-存储过程和函数）</a><time datetime="2025-04-23T14:38:34.000Z" title="发表于 2025-04-23 22:38:34">2025-04-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/19/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%882-%E8%AF%AD%E6%B3%95%E4%B8%8E%E9%80%89%E6%8B%A9%E5%99%A8%EF%BC%89/" title="CSS（2-语法与选择器）"><img src="/blog/img/index/css.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="CSS（2-语法与选择器）"/></a><div class="content"><a class="title" href="/blog/2025/04/19/%E5%89%8D%E7%AB%AF/%E4%B8%89%E4%BB%B6%E5%A5%97/css/CSS%EF%BC%882-%E8%AF%AD%E6%B3%95%E4%B8%8E%E9%80%89%E6%8B%A9%E5%99%A8%EF%BC%89/" title="CSS（2-语法与选择器）">CSS（2-语法与选择器）</a><time datetime="2025-04-19T04:42:19.000Z" title="发表于 2025-04-19 12:42:19">2025-04-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/18/Java/SpringBoot/SpringBoot%EF%BC%8810-Cache%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%EF%BC%89/" title="SpringBoot（10-Cache缓存使用）"><img src="/blog/img/index/springboot.jpg" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="SpringBoot（10-Cache缓存使用）"/></a><div class="content"><a class="title" href="/blog/2025/04/18/Java/SpringBoot/SpringBoot%EF%BC%8810-Cache%E7%BC%93%E5%AD%98%E4%BD%BF%E7%94%A8%EF%BC%89/" title="SpringBoot（10-Cache缓存使用）">SpringBoot（10-Cache缓存使用）</a><time datetime="2025-04-18T14:38:34.000Z" title="发表于 2025-04-18 22:38:34">2025-04-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 爱编程的小生</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'Ov23liNpZt9z0EBGb12H',
+      clientSecret: 'd83ac7d23712d1736a16f48d83e99d97703782c5',
+      repo: 'blog',
+      owner: 'IT-PXS',
+      admin: ['IT-PXS'],
+      //id: '2025/01/27/心得/Java集合/Java集合（总结）/',
+      id: 'be464ecfea4b3aff8dac833af8b6cf95',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/blog/js/custom.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/blog/js/search/local-search.js"></script></div></div></body></html>
