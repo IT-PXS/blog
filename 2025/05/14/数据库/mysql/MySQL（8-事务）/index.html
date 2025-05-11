@@ -1,0 +1,533 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MySQL（8-事务） | 爱编程的小生</title><meta name="author" content="爱编程的小生"><meta name="copyright" content="爱编程的小生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="theme-color" content="#ffffff"><meta name="msvalidate.01" content="42D39FDCDA422F751C046EF1D3E47A32"><meta name="description" content="MySQL事务是一组原子性SQL操作，满足ACID特性：原子性（Atomicity）确保操作全成功或全失败；一致性（Consistency）保持数据合法；隔离性（Isolation）控制并发访问；持久性（Durability）保证提交后永久生效。不同隔离级别解决脏读、不可重复读等问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL（8-事务）">
+<meta property="og:url" content="https://github.com/IT-PXS/blog.git/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/index.html">
+<meta property="og:site_name" content="爱编程的小生">
+<meta property="og:description" content="MySQL事务是一组原子性SQL操作，满足ACID特性：原子性（Atomicity）确保操作全成功或全失败；一致性（Consistency）保持数据合法；隔离性（Isolation）控制并发访问；持久性（Durability）保证提交后永久生效。不同隔离级别解决脏读、不可重复读等问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/IT-PXS/blog.git/img/index/mysql.png">
+<meta property="article:published_time" content="2025-05-14T14:38:34.000Z">
+<meta property="article:modified_time" content="2025-05-11T07:35:44.486Z">
+<meta property="article:author" content="爱编程的小生">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/IT-PXS/blog.git/img/index/mysql.png"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="https://github.com/IT-PXS/blog.git/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        if (name && globalFn[key][name]) return
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7c3d43fea2824135a47becbdad0a5150";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: 爱编程的小生","link":"链接: ","source":"来源: 爱编程的小生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#2d3035","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MySQL（8-事务）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-05-11 15:35:44'
+}</script><link rel="stylesheet" href="/blog/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/blog/img/butterfly-icon.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">97</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/blog/"><span class="site-name">爱编程的小生</span></a><a class="nav-page-title" href="/blog/"><span class="site-name">MySQL（8-事务）</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">MySQL（8-事务）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-05-14T14:38:34.000Z" title="发表于 2025-05-14 22:38:34">2025-05-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-11T07:35:44.486Z" title="更新于 2025-05-11 15:35:44">2025-05-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/blog/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h2 id="基本介绍">基本介绍</h2>
+<p>数据库中的事务是指对数据库执行一批操作，在同一个事务当中，这些操作最终要么全部执行成功，要么全部失败，不会存在部分成功的情况。</p>
+<ul>
+<li>事务是一个原子操作，是一个最小执行单元，可以由一个或多个 SQL 语句组成</li>
+<li>在同一个事务当中，所有的 SQL 语句都成功执行时整个事务成功，有一个 SQL 语句执行失败时整个事务都执行失败。</li>
+</ul>
+<p><strong>使用案例</strong></p>
+<p>比如 A 用户给 B 用户转账 100 操作，过程如下：</p>
+<ol>
+<li>从 A 账户扣 100</li>
+<li>给 B 账户加 100</li>
+</ol>
+<p>如果在事务的支持下，上面最终只有 2 种结果：</p>
+<ol>
+<li>操作成功：A 账户减少 100；B 账户增加 100</li>
+<li>操作失败：A、B 两个账户都没有发生变化</li>
+</ol>
+<h2 id="四大特征">四大特征</h2>
+<ol>
+<li>原子性：是不可分割的最小操作单位，要么同时成功，要么同时失败</li>
+<li>持久性：当事务提交或回滚后，数据库会持久化的保持数据</li>
+<li>隔离性：多个事务之间相互独立，一个事务的执行不能被其他事务干扰</li>
+<li>一致性：事务操作前后，数据总量不变</li>
+</ol>
+<h2 id="事务操作">事务操作</h2>
+<h3 id="分类">分类</h3>
+<p>mysql 中事务默认是隐式事务，执行 insert、update、delete 操作的时候，数据库自动开启事务、提交或回滚事务。是否开启隐式事务是由变量 autocommit 控制的，所以事务分为隐式事务和显式事务。</p>
+<ol>
+<li>隐式事务</li>
+</ol>
+<p>事务自动开启、提交或回滚，比如 insert、update、delete 语句，事务的开启、提交或回滚由 mysql 内部自动控制的。</p>
+<p>查看变量 autocommit 是否开启了自动提交：show variables like ‘autocommit’;</p>
+<ol start="2">
+<li>显式事务</li>
+</ol>
+<p>事务需要手动开启、提交或回滚，由开发者自己控制。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 方式1：设置不自动提交事务</span></span><br><span class="line"><span class="keyword">set</span> autocommit<span class="operator">=</span><span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 方式2：开启事务</span></span><br><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"><span class="comment">-- 执行事务操作</span></span><br><span class="line"><span class="keyword">commit</span><span class="operator">|</span><span class="keyword">rollback</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="语法">语法</h3>
+<ol>
+<li>开启事务：start  transaction</li>
+<li>回滚：rollback</li>
+<li>提交：commit</li>
+<li>事务提交的两种方式：</li>
+</ol>
+<ul>
+<li>自动提交：MySQL 是自动提交的，一条 DML（增删改）语句会自动提交一次事务</li>
+<li>手动提交：Oracle 数据库默认是手动提交事务，需要先开启事务，再提交</li>
+</ul>
+<p>修改事务的默认提交方式：</p>
+<ul>
+<li>查看事务的默认提交方式：select  @@autoncommit;（1 代表自动提交，0 代表手动提交）</li>
+<li>修改默认提交方式：set  @@autocommit = 0;</li>
+</ul>
+<ol start="5">
+<li>部分回滚：savepoint</li>
+<li>只读事务：start transaction read only;</li>
+</ol>
+<h3 id="使用案例">使用案例</h3>
+<ol>
+<li>事务提交</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test1;</span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span> a   <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> transaction;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">values</span> (<span class="number">2</span>);</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">values</span> (<span class="number">3</span>);</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">commit</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test1;</span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span> a   <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">2</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">3</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="number">3</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>事务部分回滚</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> transaction;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">values</span> (<span class="number">1</span>);</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">savepoint</span> part1; <span class="comment">-- 设置一个保存点</span></span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">values</span> (<span class="number">2</span>);</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">rollback</span> <span class="keyword">to</span> part1; <span class="comment">-- 将savepint = part1的语句到当前语句之间所有的操作回滚</span></span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">commit</span>; <span class="comment">-- 提交事务</span></span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test1;</span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span> a   <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>只读事务</li>
+</ol>
+<p>表示在事务中执行的是一些只读操作，如查询，但是不会做 insert、update、delete 操作，数据库内部对只读事务可能会有一些性能上的优化。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">commit</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> transaction read <span class="keyword">only</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test1;</span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span> a   <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">delete</span> <span class="keyword">from</span> test1;</span><br><span class="line">ERROR <span class="number">1792</span> (<span class="number">25006</span>): Cannot <span class="keyword">execute</span> statement <span class="keyword">in</span> a READ <span class="keyword">ONLY</span> transaction.</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">commit</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test1;</span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span> a   <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>   <span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------+</span></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<h2 id="存在问题">存在问题</h2>
+<p>多个事务之间隔离的，相互独立的，但是如果多个事务操作同一批数据，则会引发一些问题，设置不同的隔离级别就可以解决这些问题</p>
+<ol>
+<li>脏读：一个事务，读取到另一个事务中没有提交的数据</li>
+<li>不可重复读（虚读）：在同一个事务中，两个读取到的数据不一样</li>
+<li>幻读：一个事务操作（DML）数据表中所有记录，另一个事务添加了一个数据，则第一个事务查询不到自己的修改</li>
+</ol>
+<h2 id="隔离级别">隔离级别</h2>
+<h3 id="分类-2">分类</h3>
+<ol>
+<li>read  uncommitted：读未提交</li>
+</ol>
+<p>产生的问题：脏读、不可重复读、幻读</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">时间</th>
+<th style="text-align:left">窗口 A</th>
+<th style="text-align:left">窗口 B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">T1</td>
+<td style="text-align:left"><code>start transaction;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T2</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>start transaction;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>insert into test1 values (1);</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T6</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T7</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>commit;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T8</td>
+<td style="text-align:left"><code>commit;</code></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>read  committed：读已提交（Oracle）</li>
+</ol>
+<p>产生的问题：不可重复读、幻读</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">时间</th>
+<th style="text-align:left">窗口 A</th>
+<th style="text-align:left">窗口 B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">T1</td>
+<td style="text-align:left"><code>start transaction;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T2</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>start transaction;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>insert into test1 values (1);</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T6</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T7</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>commit;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T8</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T9</td>
+<td style="text-align:left"><code>commit;</code></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<ol start="3">
+<li>repeatable  read：可重复读（MySQL 默认）</li>
+</ol>
+<p>产生的问题：幻读</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">时间</th>
+<th style="text-align:left">窗口 A</th>
+<th style="text-align:left">窗口 B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">T1</td>
+<td style="text-align:left"><code>start transaction;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T2</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>start transaction;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>insert into test1 values (1);</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T6</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T7</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>commit;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">T8</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T9</td>
+<td style="text-align:left"><code>commit;</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">T10</td>
+<td style="text-align:left"><code>select * from test1;</code></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<ol start="4">
+<li>serializable：串行化</li>
+</ol>
+<p>可以解决所有的问题</p>
+<p>注意：隔离级别从小到大安全性越来越高，但是效率越来越低</p>
+<h3 id="总结">总结</h3>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读可能性</th>
+<th>不可重复读可能性</th>
+<th>幻读可能性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ-UNCOMMITTED</td>
+<td>有</td>
+<td>有</td>
+<td>有</td>
+</tr>
+<tr>
+<td>READ-COMMITTED</td>
+<td>无</td>
+<td>有</td>
+<td>有</td>
+</tr>
+<tr>
+<td>REPEATABLE-READ</td>
+<td>无</td>
+<td>无</td>
+<td>有</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h3 id="相关命令">相关命令</h3>
+<ol>
+<li>数据库查询隔离级别：</li>
+</ol>
+<ul>
+<li>select  @@tx_isolation;</li>
+<li>show variables like ‘transaction_isolation’;</li>
+</ul>
+<ol start="2">
+<li>数据库设置隔离级别：set  global  transaction  isolation  level  级别字符串;</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://IT-PXS.github.io/blog">爱编程的小生</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://github.com/IT-PXS/blog.git/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/">https://github.com/IT-PXS/blog.git/2025/05/14/数据库/mysql/MySQL（8-事务）/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://github.com/IT-PXS/blog.git" target="_blank">爱编程的小生</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/MySQL/">MySQL</a></div><div class="post-share"><div class="social-share" data-image="/blog/img/index/mysql.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/blog/2025/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%887-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%EF%BC%89/" title="MySQL（7-存储引擎）"><img class="cover" src="/blog/img/index/mysql.png" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">MySQL（7-存储引擎）</div></div><div class="info-2"><div class="info-item-1">MySQL支持多种存储引擎，各有特点：InnoDB支持事务和行级锁，适合高并发场景；MyISAM读取快但不支持事务，适合读密集型应用；MEMORY引擎数据存于内存，速度快但易丢失；ARCHIVE压缩比高，适合归档存储。默认推荐使用InnoDB以保证数据完整性和并发性能。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/blog/2024/11/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%881-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="MySQL（1-常用命令）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-10</div><div class="info-item-2">MySQL（1-常用命令）</div></div><div class="info-2"><div class="info-item-1">MySQL常用命令包括：DDL（数据定义语言）用于创建和修改数据库结构，如CREATE、ALTER；DML（数据操纵语言）用于增删改数据，如INSERT、UPDATE；DQL（数据查询语言）通过SELECT进行数据查询；DCL（数据控制语言）管理权限，如GRANT、REVOKE。</div></div></div></a><a class="pagination-related" href="/blog/2025/05/01/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%883-%E8%A7%A6%E5%8F%91%E5%99%A8%E5%92%8C%E8%A7%86%E5%9B%BE%EF%BC%89/" title="MySQL（3-触发器和视图）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-01</div><div class="info-item-2">MySQL（3-触发器和视图）</div></div><div class="info-2"><div class="info-item-1">触发器是自动执行的数据库操作，响应INSERT、UPDATE或DELETE事件，用于数据验证、审计等场景。视图是基于查询的虚拟表，简化复杂SQL、增强安全性并提供数据抽象。两者结合可提升数据一致性和查询效率，优化数据库管理。</div></div></div></a><a class="pagination-related" href="/blog/2025/04/23/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%882-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%89/" title="MySQL（2-存储过程和函数）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-23</div><div class="info-item-2">MySQL（2-存储过程和函数）</div></div><div class="info-2"><div class="info-item-1">MySQL存储过程和函数是预编译SQL语句集合，存储过程支持复杂业务逻辑，无返回值；函数必须有返回值，用于计算。两者提高代码复用性、安全性和执行效率，减少网络传输，适用于高频数据处理场景，可通过CREATE PROCEDURE/FUNCTION定义。</div></div></div></a><a class="pagination-related" href="/blog/2025/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%885-%E5%88%86%E5%8C%BA%EF%BC%89/" title="MySQL（5-分区）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-10</div><div class="info-item-2">MySQL（5-分区）</div></div><div class="info-2"><div class="info-item-1">MySQL分区是将表数据分割成多个独立部分的技术，提升查询性能和管理效率。支持按范围、列表、哈希和键值分区，适用于大数据表。分区能加速查询、简化维护，并优化存储，但需合理设计分区键以避免性能问题。</div></div></div></a><a class="pagination-related" href="/blog/2025/05/04/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%884-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89/" title="MySQL（4-数据类型）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-04</div><div class="info-item-2">MySQL（4-数据类型）</div></div><div class="info-2"><div class="info-item-1">MySQL字段数据类型用于定义表中数据的格式，主要包括数值型（INT、FLOAT）、字符串型（CHAR、VARCHAR）、日期时间型（DATE、DATETIME）等。合理选择数据类型可优化存储空间和查询性能，确保数据完整性与准确性。不同类型有各自的存储范围和特性，需根据业务需求选择。</div></div></div></a><a class="pagination-related" href="/blog/2025/05/11/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%886-%E7%B4%A2%E5%BC%95%EF%BC%89/" title="MySQL（6-索引）"><img class="cover" src="/blog/img/index/mysql.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-11</div><div class="info-item-2">MySQL（6-索引）</div></div><div class="info-2"><div class="info-item-1">MySQL索引是加速数据检索的关键数据结构，常见类型包括B-Tree、哈希和全文索引。合理使用索引可大幅提升查询性能，但过多索引会增加写入开销。优化索引策略需结合查询模式和数据特点，平衡读写效率。</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/blog/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">爱编程的小生</div><div class="author-info-description">一个IT爱好者</div><div class="site-data"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">97</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><a id="card-info-btn" href="https://github.com/IT-PXS"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/IT-PXS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3032428600@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">作者很懒，有时间就更新，微信公众号：爱编程的小生，邮箱：3032428600@qq.com</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">基本介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E5%A4%A7%E7%89%B9%E5%BE%81"><span class="toc-number">2.</span> <span class="toc-text">四大特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">事务操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="toc-number">3.3.</span> <span class="toc-text">使用案例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%9C%A8%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">存在问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="toc-number">5.</span> <span class="toc-text">隔离级别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB-2"><span class="toc-number">5.1.</span> <span class="toc-text">分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.2.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="toc-number">5.3.</span> <span class="toc-text">相关命令</span></a></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>MySQL</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/" title="MySQL（8-事务）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（8-事务）"></a><div class="content"><a class="title" href="/blog/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/" title="MySQL（8-事务）">MySQL（8-事务）</a><time datetime="2025-05-14T14:38:34.000Z" title="发表于 2025-05-14 22:38:34">2025-05-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%887-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%EF%BC%89/" title="MySQL（7-存储引擎）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（7-存储引擎）"></a><div class="content"><a class="title" href="/blog/2025/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%887-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%EF%BC%89/" title="MySQL（7-存储引擎）">MySQL（7-存储引擎）</a><time datetime="2025-05-12T14:38:34.000Z" title="发表于 2025-05-12 22:38:34">2025-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/11/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%886-%E7%B4%A2%E5%BC%95%EF%BC%89/" title="MySQL（6-索引）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（6-索引）"></a><div class="content"><a class="title" href="/blog/2025/05/11/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%886-%E7%B4%A2%E5%BC%95%EF%BC%89/" title="MySQL（6-索引）">MySQL（6-索引）</a><time datetime="2025-05-11T14:38:34.000Z" title="发表于 2025-05-11 22:38:34">2025-05-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%885-%E5%88%86%E5%8C%BA%EF%BC%89/" title="MySQL（5-分区）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（5-分区）"></a><div class="content"><a class="title" href="/blog/2025/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%885-%E5%88%86%E5%8C%BA%EF%BC%89/" title="MySQL（5-分区）">MySQL（5-分区）</a><time datetime="2025-05-10T14:38:34.000Z" title="发表于 2025-05-10 22:38:34">2025-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/04/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%884-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89/" title="MySQL（4-数据类型）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（4-数据类型）"></a><div class="content"><a class="title" href="/blog/2025/05/04/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%884-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89/" title="MySQL（4-数据类型）">MySQL（4-数据类型）</a><time datetime="2025-05-04T14:38:34.000Z" title="发表于 2025-05-04 22:38:34">2025-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/01/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%883-%E8%A7%A6%E5%8F%91%E5%99%A8%E5%92%8C%E8%A7%86%E5%9B%BE%EF%BC%89/" title="MySQL（3-触发器和视图）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（3-触发器和视图）"></a><div class="content"><a class="title" href="/blog/2025/05/01/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%883-%E8%A7%A6%E5%8F%91%E5%99%A8%E5%92%8C%E8%A7%86%E5%9B%BE%EF%BC%89/" title="MySQL（3-触发器和视图）">MySQL（3-触发器和视图）</a><time datetime="2025-05-01T14:38:34.000Z" title="发表于 2025-05-01 22:38:34">2025-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/04/23/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%882-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%89/" title="MySQL（2-存储过程和函数）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（2-存储过程和函数）"></a><div class="content"><a class="title" href="/blog/2025/04/23/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%882-%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%89/" title="MySQL（2-存储过程和函数）">MySQL（2-存储过程和函数）</a><time datetime="2025-04-23T14:38:34.000Z" title="发表于 2025-04-23 22:38:34">2025-04-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2024/11/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%881-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="MySQL（1-常用命令）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（1-常用命令）"></a><div class="content"><a class="title" href="/blog/2024/11/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%881-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%EF%BC%89/" title="MySQL（1-常用命令）">MySQL（1-常用命令）</a><time datetime="2024-11-10T14:38:34.000Z" title="发表于 2024-11-10 22:38:34">2024-11-10</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/" title="MySQL（8-事务）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（8-事务）"/></a><div class="content"><a class="title" href="/blog/2025/05/14/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%888-%E4%BA%8B%E5%8A%A1%EF%BC%89/" title="MySQL（8-事务）">MySQL（8-事务）</a><time datetime="2025-05-14T14:38:34.000Z" title="发表于 2025-05-14 22:38:34">2025-05-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%887-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%EF%BC%89/" title="MySQL（7-存储引擎）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（7-存储引擎）"/></a><div class="content"><a class="title" href="/blog/2025/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%887-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%EF%BC%89/" title="MySQL（7-存储引擎）">MySQL（7-存储引擎）</a><time datetime="2025-05-12T14:38:34.000Z" title="发表于 2025-05-12 22:38:34">2025-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/11/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%886-%E7%B4%A2%E5%BC%95%EF%BC%89/" title="MySQL（6-索引）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（6-索引）"/></a><div class="content"><a class="title" href="/blog/2025/05/11/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%886-%E7%B4%A2%E5%BC%95%EF%BC%89/" title="MySQL（6-索引）">MySQL（6-索引）</a><time datetime="2025-05-11T14:38:34.000Z" title="发表于 2025-05-11 22:38:34">2025-05-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%885-%E5%88%86%E5%8C%BA%EF%BC%89/" title="MySQL（5-分区）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（5-分区）"/></a><div class="content"><a class="title" href="/blog/2025/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%885-%E5%88%86%E5%8C%BA%EF%BC%89/" title="MySQL（5-分区）">MySQL（5-分区）</a><time datetime="2025-05-10T14:38:34.000Z" title="发表于 2025-05-10 22:38:34">2025-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2025/05/04/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%884-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89/" title="MySQL（4-数据类型）"><img src="/blog/img/index/mysql.png" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="MySQL（4-数据类型）"/></a><div class="content"><a class="title" href="/blog/2025/05/04/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%EF%BC%884-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89/" title="MySQL（4-数据类型）">MySQL（4-数据类型）</a><time datetime="2025-05-04T14:38:34.000Z" title="发表于 2025-05-04 22:38:34">2025-05-04</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 爱编程的小生</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: 'Ov23liNpZt9z0EBGb12H',
+      clientSecret: 'd83ac7d23712d1736a16f48d83e99d97703782c5',
+      repo: 'blog',
+      owner: 'IT-PXS',
+      admin: ['IT-PXS'],
+      //id: '2025/05/14/数据库/mysql/MySQL（8-事务）/',
+      id: '44c905d56cf39131bdabce971cfea4d9',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await btf.getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await btf.getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script src="/blog/js/custom.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/blog/js/search/local-search.js"></script></div></div></body></html>
